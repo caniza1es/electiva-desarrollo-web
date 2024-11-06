@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Simple</title>
+</head>
+<body>
+
+<script>
+    let numero1 = parseFloat(prompt("Ingresa el primer número:"));
+    let numero2 = parseFloat(prompt("Ingresa el segundo número:"));
+    let operacion = prompt("¿Qué operación deseas realizar? (suma, resta, multiplicacion, division)");
+    let resultado;
+
+    if (!isNaN(numero1) && !isNaN(numero2)) { 
+        switch (operacion.toLowerCase()) {
+            case "suma":
+                resultado = numero1 + numero2;
+                alert("El resultado de la suma es: " + resultado);
+                break;
+            case "resta":
+                resultado = numero1 - numero2;
+                alert("El resultado de la resta es: " + resultado);
+                break;
+            case "multiplicacion":
+                resultado = numero1 * numero2;
+                alert("El resultado de la multiplicación es: " + resultado);
+                break;
+            case "division":
+                if (numero2 !== 0) {
+                    resultado = numero1 / numero2;
+                    alert("El resultado de la división es: " + resultado);
+                } else {
+                    alert("No se puede dividir entre cero.");
+                }
+                break;
+            default:
+                alert("Operación no válida. Por favor elige suma, resta, multiplicacion o division.");
+        }
+    } else {
+        alert("Por favor, ingresa números válidos.");
+    }
+</script>
+
+</body>
+</html>
