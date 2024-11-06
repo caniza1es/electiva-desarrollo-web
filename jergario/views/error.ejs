@@ -9,8 +9,9 @@
   <%- include('partials/header') %> 
   
   <main>
-    <h2>Bienvenido a jergario</h2>
-    <p>Diccionario de la jerga sudamericana</p>
+    <h2>Error <%= error.status %></h2>
+    <p><%=error.message%></p>
+    <a href="/">regresar</a>
   </main>
 
 </body>
