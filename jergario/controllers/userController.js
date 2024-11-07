@@ -3,7 +3,8 @@ const User = require("../models/userModel")
 
 exports.getLogin = (req,res,next)=>{
     const error = req.flash("error")[0]
-    res.status(200).render("./users/login",{error})
+    const success = req.flash("success")[0]
+    res.status(200).render("./users/login",{error,success})
 }
 
 exports.getRegister = (req,res,next)=>{
