@@ -4,15 +4,28 @@ const userRouter = require("./routes/userRouter")
 const session = require("express-session")
 const mongoose = require("mongoose")
 const mongoStore = require("connect-mongo")
+const mongoUrl = "mongodb://localhost:27017/miBaseDeDatos"
 
-mongoose.connect("mongodb://localhost:27017/miBaseDeDatos")
+mongoose.connect(mongoUrl)
   .then(() => console.log("Conexión exitosa a MongoDB"))
   .catch((error) => console.error("Error al conectar a MongoDB:", error));
+
+
 
 const app = express()
 
 app.set("views","./views")
 app.set("view engine","ejs")
+
+app.use(session({
+    secret:"gato",
+    resave:false,
+    saveUninitialized:false,
+    store:mongoStore.create({
+        mongoUrl:mongoUrl
+    })
+}))
+
 app.use("/",indexRouter)
 app.use("/users",userRouter)
 
