@@ -1,4 +1,7 @@
-exports.getIndex = (req,res,next) => {
-    res.status(200).render("index")
+exports.getIndex = (req, res, next) => {
+    res.render("index");
 }
 
+exports.getError = (req,res,next)=>{
+    res.render("error")
+}

@@ -1,15 +1,10 @@
 exports.notFound = (req,res,next)=>{
-    const error = {
-        status:404,
-        message:"Vista no encontrada"
-    }
-    const user = req.flash("user")[0]
-    res.status(error.status).render("error",{user,error})
+    req.flash("error","Error 404: Vista no encontrada")
+    res.redirect("/error")
 }
 
 exports.internalError = (error,req,res,next)=>{
-    error.status = error.status || 500
-    const user = req.flash("user")[0]
-    res.status(error.status).render("error",{user,error})
+    const status = error.status || 500
+    req.flash("error",error.message)
+    res.redirect("/error")
 }
-

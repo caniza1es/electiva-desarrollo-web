@@ -1,8 +1,50 @@
 <header>
-    <h1>Jergar.io</h1>
+    <div class="logo">
+        <a href="/"><h1>Jergar.io</h1></a>
+    </div>
     <nav>
-      <a href="/">Inicio</a>
-      <a href="/users/login">Ingresar</a>
+        <ul>
+            <li><a href="/">Inicio</a></li>
+            <% if (isAuthenticated) { %>
+                <li><a href="/users/profile">Perfil</a></li>
+            <% } else { %>
+                <li><a href="/users/login">Ingresar</a></li>
+            <% } %>
+        </ul>
     </nav>
+
+    <% if (!useSweetAlert) { %>
+        <div class="message-container">
+            <% if (error && error.length > 0) { %>
+                <div><%= error %></div>
+            <% } %>
+            <% if (success && success.length > 0) { %>
+                <div><%= success %></div>
+            <% } %>
+        </div>
+    <% } %>
 </header>
-  
+
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    <% if (useSweetAlert) { %>
+
+        <% if (error && error.length > 0) { %>
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: '<%= error %>'
+            });
+        <% } %>
+
+
+        <% if (success && success.length > 0) { %>
+            Swal.fire({
+                icon: 'success',
+                title: 'Éxito',
+                text: '<%= success %>'
+            });
+        <% } %>
+    <% } %>
+</script>
