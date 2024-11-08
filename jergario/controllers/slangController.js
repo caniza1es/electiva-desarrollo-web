@@ -36,7 +36,7 @@ exports.postAddSlang = async (req, res, next) => {
             byUser: req.session.username
         });
 
-        await newSlang.save();
+        await newSlang.save()
         req.flash('useSweetAlert',true)
         req.flash('success', 'Jerga agregada exitosamente.')
         res.redirect('/')
@@ -45,3 +45,80 @@ exports.postAddSlang = async (req, res, next) => {
         res.redirect('/slangs/add')
     }
 };
+
+exports.upvoteSlang = async (req, res, next) => {
+    if (!req.session || !req.session.userID) {
+        req.flash('useSweetAlert', true)
+        req.flash('error', 'Debes iniciar sesión para votar.')
+        return res.redirect(req.get('referer') || '/')
+    }
+
+    const userId = req.session.userID
+    const slangId = req.params.id
+
+    try {
+        const slang = await Slang.findById(slangId)
+
+        const existingVoteIndex = slang.voters.findIndex(voter => voter.userId === userId)
+
+        if (existingVoteIndex === -1) {
+            slang.voters.push({ userId: userId, voteType: "upvote" })
+            slang.upvotes += 1
+        } else {
+            const existingVote = slang.voters[existingVoteIndex];
+
+            if (existingVote.voteType === "upvote") {
+                slang.voters.splice(existingVoteIndex, 1)
+                slang.upvotes -= 1;
+            } else if (existingVote.voteType === "downvote") {
+                slang.voters[existingVoteIndex].voteType = "upvote"
+                slang.upvotes += 1
+                slang.downvotes -= 1
+            }
+        }
+
+        await slang.save();
+        res.redirect(req.get('referer') || '/')
+    } catch (error) {
+        next(error)
+    }
+}
+
+
+exports.downvoteSlang = async (req, res, next) => {
+    if (!req.session || !req.session.userID) {
+        req.flash('useSweetAlert', true);
+        req.flash('error', 'Debes iniciar sesión para votar.')
+        return res.redirect(req.get('referer') || '/')
+    }
+
+    const userId = req.session.userID
+    const slangId = req.params.id
+
+    try {
+        const slang = await Slang.findById(slangId)
+
+        const existingVoteIndex = slang.voters.findIndex(voter => voter.userId === userId)
+
+        if (existingVoteIndex === -1) {
+            slang.voters.push({ userId: userId, voteType: "downvote" });
+            slang.downvotes += 1
+        } else {
+            const existingVote = slang.voters[existingVoteIndex]
+
+            if (existingVote.voteType === "downvote") {
+                slang.voters.splice(existingVoteIndex, 1)
+                slang.downvotes -= 1
+            } else if (existingVote.voteType === "upvote") {
+                slang.voters[existingVoteIndex].voteType = "downvote"
+                slang.downvotes += 1
+                slang.upvotes -= 1
+            }
+        }
+
+        await slang.save()
+        res.redirect(req.get('referer') || '/')
+    } catch (error) {
+        next(error)
+    }
+}

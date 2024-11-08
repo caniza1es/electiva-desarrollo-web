@@ -38,7 +38,8 @@ const slangSchema = new mongoose.Schema({
     downvotes: {
         type: Number,
         default: 0
-    }
+    },
+    voters: [{ userId: String, voteType: String }]
 });
 
 module.exports = mongoose.model("Slang", slangSchema)
