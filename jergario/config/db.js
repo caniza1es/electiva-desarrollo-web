@@ -1,9 +1,9 @@
-const mongoose = require("mongoose");
+const mongoose = require("mongoose")
 const mongoUrl = "mongodb://localhost:27017/"
 
 const connectDB = async () => {
     try {
-        await mongoose.connect(mongoUrl);
+        await mongoose.connect(mongoUrl)
         console.log("Conneccion exitosa")
     } catch (err) {
         console.error("Conneccion fallida")
@@ -11,4 +11,4 @@ const connectDB = async () => {
     }
 };
 
-module.exports = connectDB;
+module.exports = connectDB

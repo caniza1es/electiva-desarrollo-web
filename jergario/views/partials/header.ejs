@@ -7,6 +7,7 @@
             <li><a href="/">Inicio</a></li>
             <% if (isAuthenticated) { %>
                 <li><a href="/users/profile">Perfil</a></li>
+                <li><a href="/slangs/add">Agregar Jerga</a></li> 
             <% } else { %>
                 <li><a href="/users/login">Ingresar</a></li>
             <% } %>
@@ -25,11 +26,9 @@
     <% } %>
 </header>
 
-
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     <% if (useSweetAlert) { %>
-
         <% if (error && error.length > 0) { %>
             Swal.fire({
                 icon: 'error',
@@ -37,8 +36,6 @@
                 text: '<%= error %>'
             });
         <% } %>
-
-
         <% if (success && success.length > 0) { %>
             Swal.fire({
                 icon: 'success',

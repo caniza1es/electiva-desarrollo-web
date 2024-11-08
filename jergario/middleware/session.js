@@ -1,7 +1,7 @@
-const session = require("express-session");
-const mongoStore = require("connect-mongo");
+const session = require("express-session")
+const mongoStore = require("connect-mongo")
 
-const mongoUrl = "mongodb://localhost:27017/";
+const mongoUrl = "mongodb://localhost:27017/"
 
 const sessionMiddleware = session({
     resave: false,
@@ -12,4 +12,4 @@ const sessionMiddleware = session({
     }),
 });
 
-module.exports = sessionMiddleware;
+module.exports = sessionMiddleware
