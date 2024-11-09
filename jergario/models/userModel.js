@@ -7,7 +7,8 @@ const userSchema = new mongoose.Schema({
     role: { type: String, enum: ['user', 'admin'], default: 'user' },
     totalUpvotes: { type: Number, default: 0 },
     totalDownvotes: { type: Number, default: 0 },
-    createdAt: { type: Date, default: Date.now }
+    createdAt: { type: Date, default: Date.now },
+    isVerified: { type: Boolean, default: false }  
 });
 
 module.exports = mongoose.model("User", userSchema);
