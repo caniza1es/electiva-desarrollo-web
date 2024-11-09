@@ -1,140 +1,62 @@
 const User = require("../models/userModel")
+const { flashAndRedirect, isNotLoggedIn, isLoggedIn } = require('../middleware/authHelpers')
 
 const MAX_USERNAME_LENGTH = 30
-const MIN_PASSWORD_LENGTH = 8
-const MAX_PASSWORD_LENGTH = 100
+const MIN_PASSWORD_LENGTH = 4
+const MAX_PASSWORD_LENGTH = 16
 const MAX_EMAIL_LENGTH = 100
 
-exports.getRegister = (req, res, next) => {
-    if (req.session && req.session.userID) {
-        req.flash('useSweetAlert', true)
-        req.flash('error', 'Ya has iniciado sesión')
-        return res.redirect('/')
-    }
-    res.status(200).render("./users/register")
-}
 
-exports.getLogin = (req, res, next) => {
-    if (req.session && req.session.userID) {
-        req.flash('useSweetAlert', true)
-        req.flash('error', 'Ya has iniciado sesión')
-        return res.redirect('/')
-    }
-    res.status(200).render("./users/login")
-}
 
-exports.getProfile = (req, res, next) => {
-    if (!req.session || !req.session.userID) {
-        req.flash('useSweetAlert', true)
-        req.flash('error', 'Debes iniciar sesión para acceder a tu perfil')
-        return res.redirect('/users/login')
-    }
+const validateRegisterInput = ({ username, email, password, confirmPassword }) => {
+    if (!username || !email || !password || !confirmPassword) return 'Todos los campos son obligatorios'
+    if (username.length > MAX_USERNAME_LENGTH) return `El nombre de usuario no debe exceder los ${MAX_USERNAME_LENGTH} caracteres`
+    if (email.length > MAX_EMAIL_LENGTH) return `El correo no debe exceder los ${MAX_EMAIL_LENGTH} caracteres`
+    if (password.length < MIN_PASSWORD_LENGTH || password.length > MAX_PASSWORD_LENGTH) return `La contraseña debe tener entre ${MIN_PASSWORD_LENGTH} y ${MAX_PASSWORD_LENGTH} caracteres`;
+    if (password !== confirmPassword) return 'Las contraseñas no coinciden'
+    return null;
+};
 
-    res.status(200).render('./users/profile', {
-        username: req.session.username 
-    })
-}
+exports.getRegister = [isLoggedIn, (req, res) => res.status(200).render("./users/register")];
+exports.getLogin = [isLoggedIn, (req, res) => res.status(200).render("./users/login")];
+exports.getProfile = [isNotLoggedIn, (req, res) => res.status(200).render('./users/profile', { username: req.session.username })];
 
-exports.postLogout = (req, res, next) => {
-    if (!req.session || !req.session.userID) {
-        req.flash('useSweetAlert', true)
-        req.flash('error', 'No has iniciado sesión')
-        return res.redirect('/users/login')
-    }
-
+exports.postLogout = [isNotLoggedIn, (req, res, next) => {
     req.session.destroy((err) => {
-        if (err) {
-            req.flash('error', 'Hubo un problema al cerrar la sesión Inténtalo de nuevo')
-            return next(err)
-        }
-        res.redirect('/users/login')
-    })
-}
+        if (err) return next(flashAndRedirect(req, res, 'error', 'Error al cerrar sesión, inténtalo de nuevo', '/'));
+        res.redirect('/users/login');
+    });
+}];
 
-exports.postLogin = async (req, res, next) => {
-    if (req.session && req.session.userID) {
-        req.flash('useSweetAlert', true)
-        req.flash('error', 'Ya has iniciado sesión')
-        return res.redirect('/')
-    }
-
-    const { username, password } = req.body
-
-    if (!username || !password) {
-        req.flash('error', 'Todos los campos son obligatorios')
-        return res.redirect('/users/login')
-    }
+exports.postLogin = [isLoggedIn, async (req, res) => {
+    const { username, password } = req.body;
+    if (!username || !password) return flashAndRedirect(req, res, 'error', 'Todos los campos son obligatorios', '/users/login');
 
     try {
-        const user = await User.findOne({ username: username })
+        const user = await User.findOne({ username });
+        if (!user || user.password !== password) return flashAndRedirect(req, res, 'error', 'Nombre de usuario o contraseña incorrectos', '/users/login');
 
-        if (!user || user.password !== password) {
-            req.flash('error', 'Nombre de usuario o contraseña incorrectos')
-            return res.redirect('/users/login')
-        }
+        req.session.userID = user._id;
+        req.session.username = user.username;
+        return flashAndRedirect(req, res, 'success', 'Inicio de sesión exitoso', '/',true);
+    } catch {
+        return flashAndRedirect(req, res, 'error', 'Ocurrió un error, inténtalo de nuevo', '/users/login');
+    }
+}];
 
-        req.session.userID = user._id
-        req.session.username = user.username 
-        req.flash('useSweetAlert', true)
-        req.flash('success', 'Inicio de sesión exitoso')
-        res.redirect('/')
-    } catch (err) {
-        req.flash('error', 'Ocurrió un error al intentar iniciar sesión Inténtalo de nuevo')
-        res.redirect('/users/login')
-    }
-}
-
-exports.postRegister = async (req, res, next) => {
-    if (req.session && req.session.userID) {
-        req.flash('useSweetAlert', true)
-        req.flash('error', 'Ya has iniciado sesión')
-        return res.redirect('/')
-    }
-
-    const { username, email, password, confirmPassword } = req.body
-
-    if (!username || !email || !password || !confirmPassword) {
-        req.flash('error', 'Todos los campos son obligatorios')
-        return res.redirect('/users/register')
-    }
-
-    if (username.length > MAX_USERNAME_LENGTH) {
-        req.flash('error', `El nombre de usuario no debe exceder los ${MAX_USERNAME_LENGTH} caracteres`)
-        return res.redirect('/users/register')
-    }
-    if (email.length > MAX_EMAIL_LENGTH) {
-        req.flash('error', `El correo no debe exceder los ${MAX_EMAIL_LENGTH} caracteres`)
-        return res.redirect('/users/register')
-    }
-    if (password.length < MIN_PASSWORD_LENGTH || password.length > MAX_PASSWORD_LENGTH) {
-        req.flash('error', `La contraseña debe tener entre ${MIN_PASSWORD_LENGTH} y ${MAX_PASSWORD_LENGTH} caracteres`)
-        return res.redirect('/users/register')
-    }
-    if (password !== confirmPassword) {
-        req.flash('error', 'Las contraseñas no coinciden')
-        return res.redirect('/users/register')
-    }
+exports.postRegister = [isLoggedIn, async (req, res) => {
+    const { username, email, password, confirmPassword } = req.body;
+    const validationError = validateRegisterInput({ username, email, password, confirmPassword });
+    if (validationError) return flashAndRedirect(req, res, 'error', validationError, '/users/register');
 
     try {
-        const existingEmail = await User.findOne({ email: email })
-        if (existingEmail) {
-            req.flash('error', 'El correo ya está en uso')
-            return res.redirect('/users/register')
-        }
+        if (await User.findOne({ email })) return flashAndRedirect(req, res, 'error', 'El correo ya está en uso', '/users/register');
+        if (await User.findOne({ username })) return flashAndRedirect(req, res, 'error', 'El nombre de usuario ya está en uso', '/users/register');
 
-        const existingUsername = await User.findOne({ username: username })
-        if (existingUsername) {
-            req.flash('error', 'El nombre de usuario ya está en uso')
-            return res.redirect('/users/register')
-        }
-
-        const newUser = new User({ username, email, password })
-        await newUser.save()
-        req.flash('useSweetAlert', true)
-        req.flash('success', 'Registro exitoso Ahora puedes iniciar sesión')
-        res.redirect('/users/login')
-    } catch (err) {
-        req.flash('error', 'Ocurrió un error al intentar registrar Inténtalo de nuevo')
-        res.redirect('/users/register')
+        const newUser = new User({ username, email, password });
+        await newUser.save();
+        return flashAndRedirect(req, res, 'success', 'Registro exitoso, ahora puedes iniciar sesión', '/users/login',true);
+    } catch {
+        return flashAndRedirect(req, res, 'error', 'Ocurrió un error, inténtalo de nuevo', '/users/register');
     }
-}
+}];
