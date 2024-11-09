@@ -1,3 +1,25 @@
+const MAX_USERNAME_LENGTH = 30
+const MIN_PASSWORD_LENGTH = 4
+const MAX_PASSWORD_LENGTH = 16
+const MAX_EMAIL_LENGTH = 100
+const User = require("../models/userModel")
+
+
+const validateRegisterInput = ({ username, email, password, confirmPassword }, requirePassword = true) => {
+    if (!username || !email) return 'Todos los campos son obligatorios';
+    if (username.length > MAX_USERNAME_LENGTH) return `El nombre de usuario no debe exceder los ${MAX_USERNAME_LENGTH} caracteres`
+    if (email.length > MAX_EMAIL_LENGTH) return `El correo no debe exceder los ${MAX_EMAIL_LENGTH} caracteres`
+
+    if (requirePassword) {
+        if (!password || !confirmPassword) return 'La contraseña y su confirmación son obligatorias'
+        if (password.length < MIN_PASSWORD_LENGTH || password.length > MAX_PASSWORD_LENGTH) {
+            return `La contraseña debe tener entre ${MIN_PASSWORD_LENGTH} y ${MAX_PASSWORD_LENGTH} caracteres`
+        }
+        if (password !== confirmPassword) return 'Las contraseñas no coinciden'
+    }
+    return null;
+};
+
 const flashAndRedirect = (req, res, type, message, redirectPath, sweetalert=false) => {
     req.flash('useSweetAlert', sweetalert)
     req.flash(type, message)
@@ -18,8 +40,24 @@ const isLoggedIn = (req, res, next) => {
     next()
 }
 
+const validateUniqueFields = async (username, email, userId) => {
+    const existingUsername = await User.findOne({ username, _id: { $ne: userId } });
+    if (existingUsername) return 'El nombre de usuario ya está en uso';
+
+    const existingEmail = await User.findOne({ email, _id: { $ne: userId } });
+    if (existingEmail) return 'El correo electrónico ya está en uso';
+
+    return null;
+};
+
+const handleUserNotFound = (req, res) => flashAndRedirect(req, res, 'error', 'Usuario no encontrado', '/');
+
+
 module.exports = {
     flashAndRedirect,
     isNotLoggedIn,
-    isLoggedIn
+    isLoggedIn,
+    validateUniqueFields,
+    handleUserNotFound,
+    validateRegisterInput
 }

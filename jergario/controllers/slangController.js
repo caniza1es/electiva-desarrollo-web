@@ -1,4 +1,5 @@
 const Slang = require("../models/slangModel");
+const User = require("../models/userModel")
 const { flashAndRedirect, isNotLoggedIn } = require('../middleware/authHelpers')
 
 const MAX_SLANG_LENGTH = 25;
@@ -62,6 +63,21 @@ const handleVote = async (req, res, next, voteType) => {
                 slang[oppositeVoteType + "s"] -= 1;
             }
         }
+        const user = await User.findOne({ username: slang.byUser });
+        if (user) {
+            if (voteType === "upvote") {
+                user.totalUpvotes += 1;
+                if (existingVoteIndex !== -1 && slang.voters[existingVoteIndex].voteType === oppositeVoteType) {
+                    user.totalDownvotes -= 1;
+                }
+            } else {
+                user.totalDownvotes += 1;
+                if (existingVoteIndex !== -1 && slang.voters[existingVoteIndex].voteType === oppositeVoteType) {
+                    user.totalUpvotes -= 1;
+                }
+            }
+            await user.save();
+        }
 
         await slang.save();
         res.redirect(req.get('referer') || '/');
@@ -69,6 +85,7 @@ const handleVote = async (req, res, next, voteType) => {
         next(error);
     }
 };
+
 
 exports.upvoteSlang = [isNotLoggedIn, (req, res, next) => handleVote(req, res, next, "upvote")];
 exports.downvoteSlang = [isNotLoggedIn, (req, res, next) => handleVote(req, res, next, "downvote")];

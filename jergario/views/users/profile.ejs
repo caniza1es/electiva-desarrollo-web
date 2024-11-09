@@ -10,7 +10,19 @@
     <%- include('../partials/header') %>
 
     <main>
-        <h2>Perfil de <%= username %></h2>
+        <h2>👤 Perfil de <%= username %></h2>
+        
+        <section>
+            <h3>👍 Reacciones recibidas</h3>
+            <p>Votos positivos: <strong>👍 <%= totalUpvotes %></strong></p>
+            <p>Votos negativos: <strong>👎 <%= totalDownvotes %></strong></p>
+        </section>
+
+        <section>
+            <a href="/users/edit">
+                <button type="button">✏️ Editar Perfil</button>
+            </a>
+        </section>
 
         <form action="/users/logout" method="POST">
             <button type="submit">Cerrar Sesión</button>

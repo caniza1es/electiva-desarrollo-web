@@ -17,6 +17,8 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    totalUpvotes: { type: Number, default: 0 },
+    totalDownvotes: { type: Number, default: 0 },
     createdAt: {
         type: Date,
         default: Date.now,
