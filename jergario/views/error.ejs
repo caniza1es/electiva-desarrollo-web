@@ -1,17 +1,9 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Error</title>
-</head>
-<body>
+<%- include('partials/header', { pageTitle: 'Jergar.io - Error' }) %>
 
-    <%- include('partials/header') %>
+<main>
+    <h2>Error</h2>
+    <p>Ha ocurrido un error. Por favor, inténtalo de nuevo más tarde.</p>
+    <a href="/">Regresar al inicio</a>
+</main>
 
-    <main>
-        <a href="/">regresar</a>
-    </main>
-
-</body>
-</html>
+<%- include('./partials/footer') %>

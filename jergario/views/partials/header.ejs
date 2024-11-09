@@ -1,3 +1,16 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= pageTitle || "Jergar.io" %></title>
+    <link rel="stylesheet" href="/styles/main.css">
+    <% if (useSweetAlert) { %>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <% } %>
+</head>
+<body>
+
 <header>
     <div class="logo">
         <a href="/"><h1>Jergar.io</h1></a>
@@ -7,28 +20,27 @@
             <li><a href="/">Inicio</a></li>
             <% if (isAuthenticated) { %>
                 <li><a href="/users/profile">Perfil</a></li>
-                <li><a href="/slangs/add">Agregar Jerga</a></li> 
+                <li><a href="/slangs/add">Agregar Jerga</a></li>
             <% } else { %>
                 <li><a href="/users/login">Ingresar</a></li>
             <% } %>
         </ul>
     </nav>
-
-    <% if (!useSweetAlert) { %>
-        <div class="message-container">
-            <% if (error && error.length > 0) { %>
-                <div><%= error %></div>
-            <% } %>
-            <% if (success && success.length > 0) { %>
-                <div><%= success %></div>
-            <% } %>
-        </div>
-    <% } %>
 </header>
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-    <% if (useSweetAlert) { %>
+<% if (!useSweetAlert) { %>
+    <div class="message-container">
+        <% if (error && error.length > 0) { %>
+            <div class="error-message"><%= error %></div>
+        <% } %>
+        <% if (success && success.length > 0) { %>
+            <div class="success-message"><%= success %></div>
+        <% } %>
+    </div>
+<% } %>
+
+<% if (useSweetAlert) { %>
+    <script>
         <% if (error && error.length > 0) { %>
             Swal.fire({
                 icon: 'error',
@@ -43,5 +55,5 @@
                 text: '<%= success %>'
             });
         <% } %>
-    <% } %>
-</script>
+    </script>
+<% } %>

@@ -1,5 +1,5 @@
 const MAX_USERNAME_LENGTH = 30
-const MIN_PASSWORD_LENGTH = 4
+const MIN_PASSWORD_LENGTH = 3
 const MAX_PASSWORD_LENGTH = 16
 const MAX_EMAIL_LENGTH = 100
 const User = require("../models/userModel")

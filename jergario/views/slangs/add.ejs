@@ -1,66 +1,40 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jergar.io - Agregar Nueva Jerga</title>
-</head>
-<body>
+<%- include('../partials/header', { pageTitle: 'Jergar.io - Agregar Nueva Jerga'}) %>
 
-    <%- include('../partials/header', { isAuthenticated: isAuthenticated, useSweetAlert: true, error: error, success: success }) %>
+<main>
+    <h2>Agregar Nueva Jerga</h2>
+    <p>Comparte el verdadero lenguaje callejero en español completando el formulario a continuación.</p>
+    
+    <form action="/slangs/add" method="POST">
+        <div>
+            <label for="slang">Jerga:</label>
+            <input type="text" id="slang" name="slang" required>
+        </div>
 
-    <main>
-        <h2>Agregar Nueva Jerga</h2>
-        <p>Comparte el verdadero lenguaje callejero en español completando el formulario a continuación.</p>
-        
-        <form action="/slangs/add" method="POST">
-            <div>
-                <label for="slang">Jerga:</label>
-                <input type="text" id="slang" name="slang" required>
-            </div>
+        <div>
+            <label for="definition">Definición:</label>
+            <textarea id="definition" name="definition" required></textarea>
+        </div>
 
-            <div>
-                <label for="definition">Definición:</label>
-                <textarea id="definition" name="definition" required></textarea>
-            </div>
+        <div>
+            <label for="example">Ejemplo:</label>
+            <textarea id="example" name="example" required></textarea>
+        </div>
 
-            <div>
-                <label for="example">Ejemplo:</label>
-                <textarea id="example" name="example" required></textarea>
-            </div>
+        <div>
+            <label for="region">Región:</label>
+            <select id="region" name="region" required>
+                <option value="general">General</option>
+                <% const regiones = ['España', 'México', 'Argentina', 'Colombia', 'Chile', 'Perú', 'Venezuela', 'Ecuador', 'Guatemala', 'Cuba', 'Bolivia', 'Honduras', 'Paraguay', 'El Salvador', 'Nicaragua', 'Costa Rica', 'Puerto Rico', 'Panamá', 'Uruguay', 'República Dominicana']; %>
+                <% regiones.forEach(regionOption => { %>
+                    <option value="<%= regionOption %>"><%= regionOption %></option>
+                <% }) %>
+            </select>
+        </div>
 
-            <div>
-                <label for="region">Región:</label>
-                <select id="region" name="region" required>
-                    <option value="general">General</option>
-                    <option value="España">España</option>
-                    <option value="México">México</option>
-                    <option value="Argentina">Argentina</option>
-                    <option value="Colombia">Colombia</option>
-                    <option value="Chile">Chile</option>
-                    <option value="Perú">Perú</option>
-                    <option value="Venezuela">Venezuela</option>
-                    <option value="Ecuador">Ecuador</option>
-                    <option value="Guatemala">Guatemala</option>
-                    <option value="Cuba">Cuba</option>
-                    <option value="Bolivia">Bolivia</option>
-                    <option value="Honduras">Honduras</option>
-                    <option value="Paraguay">Paraguay</option>
-                    <option value="El Salvador">El Salvador</option>
-                    <option value="Nicaragua">Nicaragua</option>
-                    <option value="Costa Rica">Costa Rica</option>
-                    <option value="Puerto Rico">Puerto Rico</option>
-                    <option value="Panamá">Panamá</option>
-                    <option value="Uruguay">Uruguay</option>
-                    <option value="República Dominicana">República Dominicana</option>
-                </select>
-            </div>
+        <div>
+            <button type="submit">Agregar Jerga</button>
+        </div>
+    </form>
+</main>
 
-            <div>
-                <button type="submit">Agregar Jerga</button>
-            </div>
-        </form>
-    </main>
-
-</body>
-</html>
+<%- include('../partials/footer') %>

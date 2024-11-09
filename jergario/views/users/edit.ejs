@@ -1,47 +1,37 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editar Perfil</title>
-</head>
-<body>
+<%- include('../partials/header', { pageTitle: 'Jergar.io - Editar Perfil' }) %>
 
-    <%- include('../partials/header') %>
+<main>
+    <h2>Editar Perfil</h2>
+    
+    <form action="/users/edit" method="POST">
+        <div>
+            <label for="username">Nombre de usuario:</label>
+            <input type="text" id="username" name="username" value="<%= username %>">
+        </div>
 
-    <main>
-        <h2>Editar Perfil</h2>
-        
-        <form action="/users/edit" method="POST">
-            <div>
-                <label for="username">Nombre de usuario:</label>
-                <input type="text" id="username" name="username" value="<%= username %>">
-            </div>
+        <div>
+            <label for="email">Correo electrónico:</label>
+            <input type="email" id="email" name="email" value="<%= email %>">
+        </div>
 
-            <div>
-                <label for="email">Correo electrónico:</label>
-                <input type="email" id="email" name="email" value="<%= email %>">
-            </div>
+        <div>
+            <label for="currentPassword">Contraseña actual:</label>
+            <input type="password" id="currentPassword" name="currentPassword" required>
+        </div>
 
-            <div>
-                <label for="currentPassword">Contraseña actual:</label>
-                <input type="password" id="currentPassword" name="currentPassword" required>
-            </div>
+        <div>
+            <label for="newPassword">Nueva contraseña (opcional):</label>
+            <input type="password" id="newPassword" name="newPassword">
+        </div>
 
-            <div>
-                <label for="newPassword">Nueva contraseña (opcional):</label>
-                <input type="password" id="newPassword" name="newPassword">
-            </div>
+        <div>
+            <label for="confirmNewPassword">Confirmar nueva contraseña:</label>
+            <input type="password" id="confirmNewPassword" name="confirmNewPassword">
+        </div>
 
-            <div>
-                <label for="confirmNewPassword">Confirmar nueva contraseña:</label>
-                <input type="password" id="confirmNewPassword" name="confirmNewPassword">
-            </div>
+        <button type="submit">Guardar cambios</button>
+    </form>
+    <a href="/users/profile">Regresar</a>
+</main>
 
-            <button type="submit">Guardar cambios</button>
-        </form>
-        <a href="/users/profile">regresar</a>
-    </main>
-
-</body>
-</html>
+<%- include('../partials/footer') %>

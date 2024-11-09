@@ -1,32 +1,23 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iniciar Sesión</title>
-</head>
-<body>
+<%- include('../partials/header', { pageTitle: 'Jergar.io - Iniciar Sesión' }) %>
 
-    <%- include('../partials/header') %>
+<main>
+    <h2>Iniciar Sesión</h2>
 
-    <main>
-        <h2>Iniciar Sesión</h2>
-
-        <form action="/users/login" method="POST">
+    <form action="/users/login" method="POST">
+        <div>
             <label for="username">Nombre de Usuario:</label>
             <input type="text" id="username" name="username" required>
-            <br>
+        </div>
 
+        <div>
             <label for="password">Contraseña:</label>
             <input type="password" id="password" name="password" required>
-            <br>
+        </div>
 
-            <button type="submit">Ingresar</button>
-        </form>
-        <br>
+        <button type="submit">Ingresar</button>
+    </form>
 
-        <p>¿No tienes una cuenta? <a href="/users/register">Regístrate aquí</a>.</p>
-    </main>
+    <p>¿No tienes una cuenta? <a href="/users/register">Regístrate aquí</a>.</p>
+</main>
 
-</body>
-</html>
+<%- include('../partials/footer') %>
