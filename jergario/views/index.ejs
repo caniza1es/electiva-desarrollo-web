@@ -54,8 +54,8 @@
                         </form>
 
                         <% if (isAdmin) { %>
-                            <form action="/slangs/<%= slang._id %>/delete" method="POST" style="display:inline;">
-                                <button type="submit" onclick="return confirm('¿Estás seguro de eliminar esta jerga?')">🗑️ Eliminar</button>
+                            <form action="/slangs/<%= slang._id %>/delete" method="POST" style="display:inline;" class="delete-slang-form">
+                                <button type="button" class="delete-slang-button">🗑️ Eliminar</button>
                             </form>
                         <% } %>
                     </li>
@@ -86,3 +86,32 @@
 <%- include('./partials/footer') %>    
 
 </main>
+
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const deleteButtons = document.querySelectorAll('.delete-slang-button');
+        
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const form = this.closest('.delete-slang-form');
+                
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: "Esta acción eliminará la jerga de forma permanente.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+    });
+</script>

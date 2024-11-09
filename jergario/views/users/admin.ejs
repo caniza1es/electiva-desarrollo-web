@@ -3,7 +3,6 @@
 <main>
     <h2>Administración de Usuarios</h2>
 
-
     <form action="/users/admin" method="GET">
         <input type="text" name="search" placeholder="Buscar usuario o email..." value="<%= searchQuery || '' %>">
         <button type="submit">Buscar</button>
@@ -23,9 +22,9 @@
                     <td><%= user.username %></td>
                     <td><%= user.email %></td>
                     <td>
-                        <form action="/users/admin/delete-user" method="POST" style="display:inline;">
+                        <form action="/users/admin/delete-user" method="POST" style="display:inline;" class="delete-form">
                             <input type="hidden" name="userId" value="<%= user._id %>">
-                            <button type="submit" onclick="return confirm('¿Estás seguro de eliminar este usuario?')">Eliminar</button>
+                            <button type="button" class="delete-button">Eliminar</button>
                         </form>
                     </td>
                 </tr>
@@ -35,3 +34,32 @@
 </main>
 
 <%- include('../partials/footer') %>
+
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const deleteButtons = document.querySelectorAll('.delete-button');
+        
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const form = this.closest('.delete-form');
+                
+                Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: "Esta acción eliminará al usuario de forma permanente.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+    });
+</script>
