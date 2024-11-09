@@ -52,6 +52,12 @@
                         <form action="/slangs/<%= slang._id %>/downvote" method="POST" style="display:inline;">
                             <button type="submit">👎 <%= slang.downvotes %></button>
                         </form>
+
+                        <% if (isAdmin) { %>
+                            <form action="/slangs/<%= slang._id %>/delete" method="POST" style="display:inline;">
+                                <button type="submit" onclick="return confirm('¿Estás seguro de eliminar esta jerga?')">🗑️ Eliminar</button>
+                            </form>
+                        <% } %>
                     </li>
                 <% }) %>
             </ul>

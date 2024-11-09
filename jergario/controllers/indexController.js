@@ -17,18 +17,22 @@ exports.getIndex = async (req, res, next) => {
             .limit(limit)
             .skip((page - 1) * limit);
 
+        const isAdmin = req.session.userRole === 'admin'; 
+
         res.render("index", {
             slangs,
             searchText,
             author,
             region,
             currentPage: parseInt(page),
-            totalPages
+            totalPages,
+            isAdmin 
         });
     } catch (error) {
         next(error);
     }
 };
+
 
 exports.getError = (req, res, next) => {
     res.render("error");
