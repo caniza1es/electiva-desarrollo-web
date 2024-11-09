@@ -9,6 +9,14 @@
         <p>Votos negativos: <strong>👎 <%= totalDownvotes %></strong></p>
     </section>
 
+    <% if (isAdmin) { %>
+        <section>
+            <a href="/users/admin">
+                <button type="button">🔧 Administración</button>
+            </a>
+        </section>
+    <% } %>
+
     <section>
         <a href="/users/edit">
             <button type="button">✏️ Editar Perfil</button>

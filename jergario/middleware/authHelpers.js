@@ -52,6 +52,14 @@ const validateUniqueFields = async (username, email, userId) => {
 
 const handleUserNotFound = (req, res) => flashAndRedirect(req, res, 'error', 'Usuario no encontrado', '/');
 
+const isAdmin = (req, res, next) => {
+    if (req.session && req.session.userRole === 'admin') {
+        return next();
+    } else {
+        return flashAndRedirect(req, res, 'error', 'No tienes permisos para esta vista.', '/users/profile',true)
+    }
+};
+
 
 module.exports = {
     flashAndRedirect,
@@ -59,5 +67,6 @@ module.exports = {
     isLoggedIn,
     validateUniqueFields,
     handleUserNotFound,
-    validateRegisterInput
+    validateRegisterInput,
+    isAdmin
 }

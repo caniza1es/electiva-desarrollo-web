@@ -1,5 +1,6 @@
-const User = require("../models/userModel")
-const { flashAndRedirect, isNotLoggedIn, isLoggedIn,validateUniqueFields,handleUserNotFound,validateRegisterInput } = require('../middleware/authHelpers')
+const User = require("../models/userModel");
+const { flashAndRedirect, isNotLoggedIn, isLoggedIn, validateUniqueFields, handleUserNotFound, validateRegisterInput, isAdmin } = require('../middleware/authHelpers');
+
 
 exports.getRegister = [isLoggedIn, (req, res) => res.status(200).render("./users/register")];
 exports.getLogin = [isLoggedIn, (req, res) => res.status(200).render("./users/login")];
@@ -12,7 +13,8 @@ exports.getProfile = [isNotLoggedIn, async (req, res) => {
         res.status(200).render('./users/profile', {
             username: user.username,
             totalUpvotes: user.totalUpvotes,
-            totalDownvotes: user.totalDownvotes
+            totalDownvotes: user.totalDownvotes,
+            isAdmin: req.session.userRole === 'admin'
         });
     } catch (error) {
         return flashAndRedirect(req, res, 'error', 'Ocurrió un error al cargar el perfil', '/');
@@ -36,6 +38,7 @@ exports.postLogin = [isLoggedIn, async (req, res) => {
 
         req.session.userID = user._id;
         req.session.username = user.username;
+        req.session.userRole = user.role; 
         return flashAndRedirect(req, res, 'success', 'Inicio de sesión exitoso', '/', true);
     } catch {
         return flashAndRedirect(req, res, 'error', 'Ocurrió un error, inténtalo de nuevo', '/users/login');
@@ -105,7 +108,36 @@ exports.postEditProfile = [isNotLoggedIn, async (req, res) => {
         await user.save();
         return flashAndRedirect(req, res, 'success', 'Perfil actualizado exitosamente', '/users/profile');
     } catch (error) {
-        console.log(error.message)
+        console.log(error.message);
         return flashAndRedirect(req, res, 'error', 'Error al actualizar el perfil', '/users/edit');
+    }
+}];
+
+
+exports.getAdminPage = [isNotLoggedIn, isAdmin, async (req, res) => {
+    const searchQuery = req.query.search || '';
+    try {
+        const users = await User.find({
+            $or: [
+                { username: { $regex: searchQuery, $options: 'i' } },
+                { email: { $regex: searchQuery, $options: 'i' } }
+            ]
+        });
+        res.status(200).render('./users/admin', { users, searchQuery });
+    } catch (error) {
+        return flashAndRedirect(req, res, 'error', 'Error al cargar la página de administración', '/');
+    }
+}];
+
+
+
+exports.deleteUser = [isNotLoggedIn, isAdmin, async (req, res) => {
+    const { userId } = req.body;
+
+    try {
+        await User.findByIdAndDelete(userId);
+        return flashAndRedirect(req, res, 'success', 'Usuario eliminado', '/users/admin');
+    } catch (error) {
+        return flashAndRedirect(req, res, 'error', 'Error al eliminar el usuario', '/users/admin');
     }
 }];
