@@ -1,31 +1,35 @@
 <%- include('../partials/header', { pageTitle: 'Jergar.io - Perfil de Usuario' }) %>
 
-<main>
-    <h2>👤 Perfil de <%= username %></h2>
-    
-    <section>
-        <h3>👍 Reacciones recibidas</h3>
-        <p>Votos positivos: <strong>👍 <%= totalUpvotes %></strong></p>
-        <p>Votos negativos: <strong>👎 <%= totalDownvotes %></strong></p>
-    </section>
+<body class="d-flex flex-column min-vh-100"> 
 
-    <% if (isAdmin) { %>
-        <section>
-            <a href="/users/admin">
-                <button type="button">🔧 Administración</button>
-            </a>
-        </section>
-    <% } %>
+    <main class="container my-5 flex-grow-1"> 
+        <div class="card shadow-lg p-4 mx-auto" style="max-width: 900px;">
+            <div class="card-body">
+                <h2 class="text-center mb-4" style="font-size: 5rem;">👤</h2> 
+                <p class="text-center text-muted"><em>Perfil de <%= username %></em></p>
 
-    <section>
-        <a href="/users/edit">
-            <button type="button">✏️ Editar Perfil</button>
-        </a>
-    </section>
+                <section class="my-4">
+                    <h3 class="text-secondary">Reacciones recibidas</h3>
+                    <p><strong>👍 <%= totalUpvotes %></strong></p>
+                    <p><strong>👎 <%= totalDownvotes %></strong></p>
+                </section>
 
-    <form action="/users/logout" method="POST">
-        <button type="submit">Cerrar Sesión</button>
-    </form>
-</main>
+                <% if (isAdmin) { %>
+                    <section class="my-4">
+                        <a href="/users/admin" class="btn btn-outline-secondary w-100">🔧 Administración</a>
+                    </section>
+                <% } %>
 
-<%- include('../partials/footer') %>
+                <section class="my-4">
+                    <a href="/users/edit" class="btn btn-outline-primary w-100">✏️ Editar Perfil</a>
+                </section>
+
+                <form action="/users/logout" method="POST" class="text-center">
+                    <button type="submit" class="btn btn-danger w-100">Cerrar Sesión</button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <%- include('../partials/footer') %> 
+</body>

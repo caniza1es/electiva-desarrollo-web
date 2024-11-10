@@ -1,92 +1,108 @@
 <%- include('partials/header', { pageTitle: 'Jergar.io' }) %>
 
-<main>
-    <h2>Bienvenido a Jergar.io</h2>
-    <p><em>Para que no te hablen raro</em></p> 
-    <p>Jergar.io es el diccionario de jerga donde puedes buscar, descubrir y compartir el verdadero lenguaje callejero.</p>
-    
-    <form action="/" method="GET">
-        <div>
-            <label for="searchText">Buscar Jerga:</label>
-            <input type="text" id="searchText" name="searchText" placeholder="Ej. chevere" value="<%= searchText || '' %>">
-        </div>
+<div class="d-flex flex-column min-vh-100">
+    <main class="container my-5 flex-grow-1">
+        <div class="card shadow-lg p-4 mx-auto" style="max-width: 900px;">
+            <div class="card-body">
+                <h2 class="text-center mb-4" style="font-size: 5rem;">📖</h2> 
+                <p class="text-center text-muted"><em>Para que no te hablen raro</em></p>
+                <div class="card my-4 p-3 shadow-sm">
+                    <form action="/" method="GET" class="d-flex flex-column flex-md-row">
+                        <div class="input-group flex-grow-1">
+                            <input type="text" class="form-control" id="searchText" name="searchText" placeholder="💬" value="<%= searchText || '' %>">
+                            <input type="text" class="form-control" id="author" name="author" placeholder="👤" value="<%= author || '' %>">
+                            <select id="region" name="region" class="form-select" style="width: 35px;">
+                                <option value="">🌎</option>
+                                <% const regiones = {
+                                    'España': '🇪🇸',
+                                    'México': '🇲🇽',
+                                    'Argentina': '🇦🇷',
+                                    'Colombia': '🇨🇴',
+                                    'Chile': '🇨🇱',
+                                    'Perú': '🇵🇪',
+                                    'Venezuela': '🇻🇪',
+                                    'Ecuador': '🇪🇨',
+                                    'Guatemala': '🇬🇹',
+                                    'Cuba': '🇨🇺',
+                                    'Bolivia': '🇧🇴',
+                                    'Honduras': '🇭🇳',
+                                    'Paraguay': '🇵🇾',
+                                    'El Salvador': '🇸🇻',
+                                    'Nicaragua': '🇳🇮',
+                                    'Costa Rica': '🇨🇷',
+                                    'Puerto Rico': '🇵🇷',
+                                    'Panamá': '🇵🇦',
+                                    'Uruguay': '🇺🇾',
+                                    'República Dominicana': '🇩🇴'
+                                }; %>
+                                <% for (const [regionOption, flag] of Object.entries(regiones)) { %>
+                                    <option value="<%= regionOption %>" <%= region === regionOption ? 'selected' : '' %>><%= flag %></option>
+                                <% } %>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary ms-md-2 mt-2 mt-md-0">Buscar</button>
+                    </form>
+                </div>
 
-        <div>
-            <label for="author">Autor:</label>
-            <input type="text" id="author" name="author" placeholder="Ej. user123" value="<%= author || '' %>">
-        </div>
+                <section>
+                    <% if (slangs.length > 0) { %>
+                        <div class="d-flex flex-column gap-3">
+                            <% slangs.forEach(slang => { %>
+                                <div class="card shadow-sm p-3">
+                                    <div class="card-body position-relative">
+                                        <h5 class="card-title fw-bold text-primary mb-1"><%= slang.slang %></h5>
+                                        <span class="position-absolute top-0 end-0 text-muted small"><%= slang.datetime.toLocaleDateString() %></span>
+                                        <p class="text-muted mb-2"><%= slang.definition %></p>
+                                        <p class="fst-italic text-secondary mb-2">"<%= slang.example %>"</p>
+                                        <div class="d-flex justify-content-between">
+                                            <a href="?author=<%= slang.byUser %>" class="text-decoration-none small text-primary"><%= slang.byUser %></a>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center mt-2">
+                                            <a href="?region=<%= slang.region %>" class="text-decoration-none small text-primary me-3">
+                                                <%= regiones[slang.region] || '🌎' %> 
+                                            </a>
+                                            <div class="d-flex align-items-center">
+                                                <form action="/slangs/<%= slang._id %>/upvote" method="POST" style="display:inline;">
+                                                    <button type="submit" class="btn btn-outline-success btn-sm me-2">👍 <%= slang.upvotes %></button>
+                                                </form>
+                                                <form action="/slangs/<%= slang._id %>/downvote" method="POST" style="display:inline;">
+                                                    <button type="submit" class="btn btn-outline-danger btn-sm me-2">👎 <%= slang.downvotes %></button>
+                                                </form>
+                                                <% if (isAdmin) { %>
+                                                    <form action="/slangs/<%= slang._id %>/delete" method="POST" style="display:inline;" class="delete-slang-form">
+                                                        <button type="button" class="btn btn-outline-danger btn-sm delete-slang-button">🗑️</button>
+                                                    </form>
+                                                <% } %>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% }) %>
+                        </div>
+                    <% } else { %>
+                        <p class="text-center mt-3">No se encontraron resultados para los criterios de búsqueda.</p>
+                    <% } %>
+                </section>
 
-        <div>
-            <label for="region">Región:</label>
-            <select id="region" name="region">
-                <option value="">Todas</option>
-                <% const regiones = ['España', 'México', 'Argentina', 'Colombia', 'Chile', 'Perú', 'Venezuela', 'Ecuador', 'Guatemala', 'Cuba', 'Bolivia', 'Honduras', 'Paraguay', 'El Salvador', 'Nicaragua', 'Costa Rica', 'Puerto Rico', 'Panamá', 'Uruguay', 'República Dominicana']; %>
-                <% regiones.forEach(regionOption => { %>
-                    <option value="<%= regionOption %>" <%= region === regionOption ? 'selected' : '' %>><%= regionOption %></option>
-                <% }) %>
-            </select>
-        </div>
-
-        <div>
-            <button type="submit">Buscar</button>
-        </div>
-    </form>
-
-    <section>
-        <h3>Resultados de búsqueda</h3>
-        <% if (slangs.length > 0) { %>
-            <ul>
-                <% slangs.forEach(slang => { %>
-                    <li>
-                        <h4><%= slang.slang %></h4>
-                        <p><strong>Definición:</strong> <%= slang.definition %></p>
-                        <p><strong>Ejemplo:</strong> <%= slang.example %></p>
-                        <p><strong>Autor:</strong> 
-                            <a href="?searchText=<%= searchText %>&region=<%= region %>&author=<%= slang.byUser %>"><%= slang.byUser %></a> 
-                            | <strong>Región:</strong> <%= slang.region %>
-                        </p>
-                        <p><strong>Fecha:</strong> <%= slang.datetime.toLocaleDateString() %></p>
-                        <form action="/slangs/<%= slang._id %>/upvote" method="POST" style="display:inline;">
-                            <button type="submit">👍 <%= slang.upvotes %></button>
-                        </form>
-                        <form action="/slangs/<%= slang._id %>/downvote" method="POST" style="display:inline;">
-                            <button type="submit">👎 <%= slang.downvotes %></button>
-                        </form>
-
-                        <% if (isAdmin) { %>
-                            <form action="/slangs/<%= slang._id %>/delete" method="POST" style="display:inline;" class="delete-slang-form">
-                                <button type="button" class="delete-slang-button">🗑️ Eliminar</button>
-                            </form>
-                        <% } %>
-                    </li>
-                <% }) %>
-            </ul>
-    
-            <div class="pagination">
-                <% if (currentPage > 1) { %>
-                    <a href="?searchText=<%= searchText %>&author=<%= author %>&region=<%= region %>&page=<%= currentPage - 1 %>">Anterior</a>
-                <% } %>
-    
-                <% for (let i = 1; i <= totalPages; i++) { %>
-                    <a href="?searchText=<%= searchText %>&author=<%= author %>&region=<%= region %>&page=<%= i %>" 
-                       class="<%= i === currentPage ? 'active' : '' %>">
-                       <%= i %>
-                    </a>
-                <% } %>
-    
-                <% if (currentPage < totalPages) { %>
-                    <a href="?searchText=<%= searchText %>&author=<%= author %>&region=<%= region %>&page=<%= currentPage + 1 %>">Siguiente</a>
-                <% } %>
+                <div class="pagination d-flex justify-content-center mt-4">
+                    <% if (currentPage > 1) { %>
+                        <a href="?searchText=<%= searchText %>&author=<%= author %>&region=<%= region %>&page=<%= currentPage - 1 %>" class="btn btn-outline-secondary me-2">Anterior</a>
+                    <% } %>
+                    <% for (let i = 1; i <= totalPages; i++) { %>
+                        <a href="?searchText=<%= searchText %>&author=<%= author %>&region=<%= region %>&page=<%= i %>" class="btn btn-outline-secondary <%= i === currentPage ? 'active' : '' %>">
+                            <%= i %>
+                        </a>
+                    <% } %>
+                    <% if (currentPage < totalPages) { %>
+                        <a href="?searchText=<%= searchText %>&author=<%= author %>&region=<%= region %>&page=<%= currentPage + 1 %>" class="btn btn-outline-secondary ms-2">Siguiente</a>
+                    <% } %>
+                </div>
             </div>
-        <% } else { %>
-            <p>No se encontraron resultados para los criterios de búsqueda.</p>
-        <% } %>
-    </section>
-    
-<%- include('./partials/footer') %>    
+        </div>
+    </main>
 
-</main>
-
+    <%- include('partials/footer') %>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>

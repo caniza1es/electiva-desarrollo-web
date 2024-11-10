@@ -1,33 +1,44 @@
 <%- include('../partials/header', { pageTitle: 'Jergar.io - Registro' }) %>
 
-<main>
-    <h2>Registro de Usuario</h2>
+<div class="d-flex flex-column min-vh-100">
+    <main class="container my-5 flex-grow-1">
+        <div class="card shadow-lg p-4 mx-auto" style="max-width: 600px;">
+            <div class="card-body">
+                <h2 class="text-center mb-4" style="font-size: 5rem;">📝</h2>
+                <h3 class="text-center text-muted"><em>Registro de Usuario</em></h3>
 
-    <form action="/users/register" method="POST">
-        <div>
-            <label for="username">Nombre de Usuario:</label>
-            <input type="text" id="username" name="username" required>
+                <form action="/users/register" method="POST" class="my-4">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">👤 Nombre de Usuario:</label>
+                        <input type="text" id="username" name="username" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label">📧 Correo Electrónico:</label>
+                        <input type="email" id="email" name="email" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">🔒 Contraseña:</label>
+                        <input type="password" id="password" name="password" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="confirmPassword" class="form-label">🔒 Confirmar Contraseña:</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" required>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Registrarse</button>
+                    </div>
+                </form>
+
+                <div class="text-center mt-3">
+                    <p>¿Ya tienes una cuenta? <a href="/users/login" class="text-primary">Inicia sesión aquí</a>.</p>
+                </div>
+            </div>
         </div>
+    </main>
 
-        <div>
-            <label for="email">Correo Electrónico:</label>
-            <input type="email" id="email" name="email" required>
-        </div>
-
-        <div>
-            <label for="password">Contraseña:</label>
-            <input type="password" id="password" name="password" required>
-        </div>
-
-        <div>
-            <label for="confirmPassword">Confirmar Contraseña:</label>
-            <input type="password" id="confirmPassword" name="confirmPassword" required>
-        </div>
-
-        <button type="submit">Registrarse</button>
-    </form>
-
-    <p>¿Ya tienes una cuenta? <a href="/users/login">Inicia sesión aquí</a>.</p>
-</main>
-
-<%- include('../partials/footer') %>
+    <%- include('../partials/footer') %>
+</div>

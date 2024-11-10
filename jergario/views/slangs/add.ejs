@@ -1,40 +1,66 @@
-<%- include('../partials/header', { pageTitle: 'Jergar.io - Agregar Nueva Jerga'}) %>
+<%- include('../partials/header', { pageTitle: 'Jergar.io - Agregar Nueva Jerga' }) %>
 
-<main>
-    <h2>Agregar Nueva Jerga</h2>
-    <p>Comparte el verdadero lenguaje callejero en español completando el formulario a continuación.</p>
-    
-    <form action="/slangs/add" method="POST">
-        <div>
-            <label for="slang">Jerga:</label>
-            <input type="text" id="slang" name="slang" required>
+<div class="d-flex flex-column min-vh-100">
+    <main class="container my-5 flex-grow-1">
+        <div class="card shadow-lg p-4 mx-auto" style="max-width: 700px;">
+            <div class="card-body">
+                <h2 class="text-center mb-4" style="font-size: 5rem;">📝</h2>
+
+                <form action="/slangs/add" method="POST" class="my-4">
+                    <div class="mb-3">
+                        <label for="slang" class="form-label">💬 Jerga:</label>
+                        <input type="text" id="slang" name="slang" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="definition" class="form-label">📖 Definición:</label>
+                        <textarea id="definition" name="definition" class="form-control" rows="3" required></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="example" class="form-label">📝 Ejemplo:</label>
+                        <textarea id="example" name="example" class="form-control" rows="3" required></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="region" class="form-label">🌎 Región:</label>
+                        <select id="region" name="region" class="form-select" required>
+                            <option value="general">🌎 General</option>
+                            <% const regiones = {
+                                'España': '🇪🇸',
+                                'México': '🇲🇽',
+                                'Argentina': '🇦🇷',
+                                'Colombia': '🇨🇴',
+                                'Chile': '🇨🇱',
+                                'Perú': '🇵🇪',
+                                'Venezuela': '🇻🇪',
+                                'Ecuador': '🇪🇨',
+                                'Guatemala': '🇬🇹',
+                                'Cuba': '🇨🇺',
+                                'Bolivia': '🇧🇴',
+                                'Honduras': '🇭🇳',
+                                'Paraguay': '🇵🇾',
+                                'El Salvador': '🇸🇻',
+                                'Nicaragua': '🇳🇮',
+                                'Costa Rica': '🇨🇷',
+                                'Puerto Rico': '🇵🇷',
+                                'Panamá': '🇵🇦',
+                                'Uruguay': '🇺🇾',
+                                'República Dominicana': '🇩🇴'
+                            }; %>
+                            <% for (const [regionOption, flag] of Object.entries(regiones)) { %>
+                                <option value="<%= regionOption %>"><%= flag %> <%= regionOption %></option>
+                            <% } %>
+                        </select>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Agregar Jerga</button>
+                    </div>
+                </form>
+            </div>
         </div>
+    </main>
 
-        <div>
-            <label for="definition">Definición:</label>
-            <textarea id="definition" name="definition" required></textarea>
-        </div>
-
-        <div>
-            <label for="example">Ejemplo:</label>
-            <textarea id="example" name="example" required></textarea>
-        </div>
-
-        <div>
-            <label for="region">Región:</label>
-            <select id="region" name="region" required>
-                <option value="general">General</option>
-                <% const regiones = ['España', 'México', 'Argentina', 'Colombia', 'Chile', 'Perú', 'Venezuela', 'Ecuador', 'Guatemala', 'Cuba', 'Bolivia', 'Honduras', 'Paraguay', 'El Salvador', 'Nicaragua', 'Costa Rica', 'Puerto Rico', 'Panamá', 'Uruguay', 'República Dominicana']; %>
-                <% regiones.forEach(regionOption => { %>
-                    <option value="<%= regionOption %>"><%= regionOption %></option>
-                <% }) %>
-            </select>
-        </div>
-
-        <div>
-            <button type="submit">Agregar Jerga</button>
-        </div>
-    </form>
-</main>
-
-<%- include('../partials/footer') %>
+    <%- include('../partials/footer') %> 
+</div>

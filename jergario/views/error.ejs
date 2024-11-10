@@ -1,9 +1,16 @@
 <%- include('partials/header', { pageTitle: 'Jergar.io - Error' }) %>
 
-<main>
-    <h2>Error</h2>
-    <p>Ha ocurrido un error. Por favor, inténtalo de nuevo más tarde.</p>
-    <a href="/">Regresar al inicio</a>
-</main>
+<div class="d-flex flex-column min-vh-100">
+    <main class="container my-5 flex-grow-1">
+        <div class="card shadow-lg p-4 mx-auto text-center" style="max-width: 600px;">
+            <div class="card-body">
+                <h2 class="text-center mb-4" style="font-size: 5rem;">❌</h2>
+                <h3 class="text-muted">Ha ocurrido un error</h3>
+                <p class="mb-4">Por favor, inténtalo de nuevo más tarde.</p>
+                <a href="/" class="btn btn-primary">Regresar al inicio</a>
+            </div>
+        </div>
+    </main>
 
-<%- include('./partials/footer') %>
+    <%- include('./partials/footer') %>
+</div>
