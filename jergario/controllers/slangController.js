@@ -38,18 +38,6 @@ exports.postAddSlang = [isNotLoggedIn, async (req, res) => {
     }
 }];
 
-
-const updateUserVotes = async (user, voteType, isRemovingOppositeVote) => {
-    if (voteType === "upvote") {
-        user.totalUpvotes += 1;
-        if (isRemovingOppositeVote) user.totalDownvotes -= 1;
-    } else {
-        user.totalDownvotes += 1;
-        if (isRemovingOppositeVote) user.totalUpvotes -= 1;
-    }
-    await user.save();
-};
-
 const handleVote = async (req, res, next, voteType) => {
     const userId = req.session.userID;
     const slangId = req.params.id;
@@ -74,9 +62,6 @@ const handleVote = async (req, res, next, voteType) => {
                 slang[oppositeVoteType + "s"] -= 1;
             }
         }
-
-        const user = await User.findOne({ username: slang.byUser });
-        if (user) await updateUserVotes(user, voteType, isRemovingOppositeVote);
 
         await slang.save();
         res.redirect(req.get('referer') || '/');

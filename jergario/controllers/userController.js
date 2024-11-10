@@ -1,5 +1,6 @@
 const User = require("../models/userModel");
 const jwt = require('jsonwebtoken');
+const Slang = require("../models/slangModel")
 const transporter = require('../config/emailConfig');
 const { 
     flashAndRedirect, 
@@ -32,16 +33,23 @@ exports.getProfile = [isNotLoggedIn, async (req, res) => {
     try {
         const user = await User.findById(req.session.userID);
         if (!user) return handleUserNotFound(req, res);
+
+        const slangs = await Slang.find({ byUser: user.username });
+
+        const totalUpvotes = slangs.reduce((sum, slang) => sum + (slang.upvotes || 0), 0);
+        const totalDownvotes = slangs.reduce((sum, slang) => sum + (slang.downvotes || 0), 0);
+
         res.status(200).render('./users/profile', {
             username: user.username,
-            totalUpvotes: user.totalUpvotes,
-            totalDownvotes: user.totalDownvotes,
+            totalUpvotes: totalUpvotes,
+            totalDownvotes: totalDownvotes,
             isAdmin: req.session.userRole === 'admin'
         });
     } catch (error) {
         return flashAndRedirect(req, res, 'error', 'Ocurrió un error al cargar el perfil', '/');
     }
 }];
+
 
 exports.postLogout = [isNotLoggedIn, (req, res, next) => {
     req.session.destroy(err => {
