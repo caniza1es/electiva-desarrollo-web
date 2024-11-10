@@ -5,25 +5,17 @@
         <div class="card shadow-lg p-4 mx-auto" style="max-width: 700px;">
             <div class="card-body">
                 <h2 class="text-center mb-4" style="font-size: 5rem;">📝</h2>
-
                 <form action="/slangs/add" method="POST" class="my-4">
                     <div class="mb-3">
-                        <label for="slang" class="form-label">💬 Jerga:</label>
-                        <input type="text" id="slang" name="slang" class="form-control" required>
+                        <input type="text" id="slang" name="slang" class="form-control" placeholder="💬 Jerga" required>
                     </div>
-
                     <div class="mb-3">
-                        <label for="definition" class="form-label">📖 Definición:</label>
-                        <textarea id="definition" name="definition" class="form-control" rows="3" required></textarea>
+                        <textarea id="definition" name="definition" class="form-control" rows="3" placeholder="📖 Definición" required></textarea>
                     </div>
-
                     <div class="mb-3">
-                        <label for="example" class="form-label">📝 Ejemplo:</label>
-                        <textarea id="example" name="example" class="form-control" rows="3" required></textarea>
+                        <textarea id="example" name="example" class="form-control" rows="3" placeholder="📝 Ejemplo" required></textarea>
                     </div>
-
                     <div class="mb-3">
-                        <label for="region" class="form-label">🌎 Región:</label>
                         <select id="region" name="region" class="form-select" required>
                             <option value="general">🌎 General</option>
                             <% const regiones = {
@@ -53,7 +45,6 @@
                             <% } %>
                         </select>
                     </div>
-
                     <div class="d-grid">
                         <button type="submit" class="btn btn-primary">Agregar Jerga</button>
                     </div>
@@ -61,6 +52,5 @@
             </div>
         </div>
     </main>
-
     <%- include('../partials/footer') %> 
 </div>
