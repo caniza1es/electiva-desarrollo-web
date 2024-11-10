@@ -11,8 +11,11 @@ router.get("/profile", userController.getProfile);
 router.post("/logout", userController.postLogout);
 router.get("/edit", userController.getEditProfile);
 router.post("/edit", userController.postEditProfile);
+router.post("/delete",userController.deleteAccount)
 
 router.get("/verify/:token", userController.verifyEmail); 
+router.get('/resend-verification', userController.resendVerificationEmail);
+
 
 router.get("/admin", userController.getAdminPage);
 router.post("/admin/delete-user", userController.deleteUser);

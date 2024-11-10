@@ -61,16 +61,26 @@ exports.postLogout = [isNotLoggedIn, (req, res, next) => {
 exports.postLogin = [isLoggedIn, async (req, res) => {
     const { username, password } = req.body;
     if (!username || !password) return flashAndRedirect(req, res, 'error', 'Todos los campos son obligatorios', '/users/login');
+    
     try {
         const user = await User.findOne({ username });
-        if (!user || user.password !== password) return flashAndRedirect(req, res, 'error', 'Nombre de usuario o contraseña incorrectos', '/users/login');
-        if (!user.isVerified) return flashAndRedirect(req, res, 'error', 'Por favor, verifica tu email para iniciar sesión.', '/users/login');
+        if (!user || user.password !== password) {
+            return flashAndRedirect(req, res, 'error', 'Nombre de usuario o contraseña incorrectos', '/users/login');
+        }
+
+        if (!user.isVerified) {
+            const resendLink = `<a href="/users/resend-verification?userId=${user._id}">Reenviar verificación</a>`;
+            const message = `Por favor, verifica tu email para iniciar sesión. ${resendLink}`;
+            return flashAndRedirect(req, res, 'error', message, '/users/login');
+        }
+
         setSession(req, user);
         return flashAndRedirect(req, res, 'success', 'Inicio de sesión exitoso', '/', true);
     } catch {
         return flashAndRedirect(req, res, 'error', 'Ocurrió un error, inténtalo de nuevo', '/users/login');
     }
 }];
+
 
 exports.postRegister = [isLoggedIn, async (req, res) => {
     const { username, email, password, confirmPassword } = req.body;
@@ -126,31 +136,25 @@ exports.getEditProfile = [isNotLoggedIn, async (req, res) => {
 }];
 
 exports.postEditProfile = [isNotLoggedIn, async (req, res) => {
-    const { username, email, currentPassword, newPassword, confirmNewPassword } = req.body;
+    const { username, currentPassword, newPassword, confirmNewPassword } = req.body;
     try {
         const user = await User.findById(req.session.userID);
         if (!user) return handleUserNotFound(req, res);
+        
         if (user.password !== currentPassword) return flashAndRedirect(req, res, 'error', 'La contraseña actual es incorrecta', '/users/edit');
+        
         const validationError = validateRegisterInput(
-            { username, email, password: newPassword, confirmPassword: confirmNewPassword },
+            { username, password: newPassword, confirmPassword: confirmNewPassword },
             !!newPassword
         );
         if (validationError) return flashAndRedirect(req, res, 'error', validationError, '/users/edit');
-        const uniqueFieldError = await validateUniqueFields(username, email, user._id);
+
+        const uniqueFieldError = await validateUniqueFields(username, null, user._id)
         if (uniqueFieldError) return flashAndRedirect(req, res, 'error', uniqueFieldError, '/users/edit');
-        const emailChanged = user.email !== email;
+
         user.username = username || user.username;
-        user.email = email || user.email;
         if (newPassword) user.password = newPassword;
-        if (emailChanged) {
-            user.isVerified = false;
-            await user.save();
-            const token = generateToken(user._id);
-            const verificationUrl = `${req.protocol}://${req.get('host')}/users/verify/${token}`;
-            const emailHtml = `<p>Hola, ${username}. Verifica tu nuevo correo electrónico:</p><a href="${verificationUrl}">Verificar Email</a>`;
-            await sendEmail(email, 'Verificación de Nuevo Email - Jergar.io', emailHtml);
-            return flashAndRedirect(req, res, 'success', 'Perfil actualizado. Revisa tu correo para verificar tu nuevo email.', '/users/profile');
-        }
+
         await user.save();
         return flashAndRedirect(req, res, 'success', 'Perfil actualizado exitosamente', '/users/profile');
     } catch (error) {
@@ -158,6 +162,7 @@ exports.postEditProfile = [isNotLoggedIn, async (req, res) => {
         return flashAndRedirect(req, res, 'error', 'Error al actualizar el perfil', '/users/edit');
     }
 }];
+
 
 exports.getAdminPage = [isNotLoggedIn, isAdmin, async (req, res) => {
     const searchQuery = req.query.search || '';
@@ -234,3 +239,47 @@ exports.postResetPassword = [isLoggedIn, async (req, res) => {
         return flashAndRedirect(req, res, 'error', 'Error al restablecer la contraseña.', '/users/forgot-password');
     }
 }];
+
+
+exports.resendVerificationEmail = async (req, res) => {
+    const { userId } = req.query;
+    
+    try {
+        const user = await User.findById(userId);
+        if (!user) {
+            return flashAndRedirect(req, res, 'error', 'Usuario no encontrado', '/users/login');
+        }
+
+        if (user.isVerified) {
+            return flashAndRedirect(req, res, 'error', 'La cuenta ya está verificada', '/users/login');
+        }
+        const token = generateToken(user._id);
+        const verificationUrl = `${req.protocol}://${req.get('host')}/users/verify/${token}`;
+        const emailHtml = `<p>Hola, ${user.username}. Haz clic en el enlace para verificar tu email:</p><a href="${verificationUrl}">Verificar Email</a>`;
+        
+        await sendEmail(user.email, 'Reenvío de Verificación de Email - Jergar.io', emailHtml);
+        
+        return flashAndRedirect(req, res, 'success', 'Se ha reenviado el correo de verificación. Revisa tu bandeja de entrada.', '/users/login');
+    } catch (error) {
+        console.error(error);
+        return flashAndRedirect(req, res, 'error', 'Ocurrió un error al reenviar el correo de verificación.', '/users/login');
+    }
+};
+
+exports.deleteAccount = [isNotLoggedIn, async (req, res) => {
+    try {
+        const user = await User.findById(req.session.userID);
+        if (!user) return handleUserNotFound(req, res);
+
+        await User.findByIdAndDelete(user._id);
+
+        req.session.destroy((err) => {
+            if (err) return res.redirect('/');
+            res.clearCookie('connect.sid');
+            res.redirect('/');
+        });
+    } catch (error) {
+        return res.redirect('/users/profile');
+    }
+}];
+
