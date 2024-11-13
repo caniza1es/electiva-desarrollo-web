@@ -1,6 +1,5 @@
 const Slang = require("../models/slangModel");
-const User = require("../models/userModel");
-const { flashAndRedirect, isNotLoggedIn, isAdmin } = require('../middleware/authHelpers');
+const { flashAndRedirect } = require("../middleware/authHelpers");
 
 const MAX_SLANG_LENGTH = 25;
 const MAX_DEFINITION_LENGTH = 250;
@@ -14,14 +13,14 @@ const validateSlangInput = ({ slang, definition, example, region }) => {
     return null;
 };
 
-exports.getAddSlang = [isNotLoggedIn, (req, res) => {
-    res.status(200).render('slangs/add', { isAuthenticated: true });
-}];
+exports.getAddSlang = (req, res) => {
+    res.status(200).render("slangs/add", { isAuthenticated: true });
+};
 
-exports.postAddSlang = [isNotLoggedIn, async (req, res) => {
+exports.postAddSlang = async (req, res) => {
     const { slang, definition, example, region } = req.body;
     const validationError = validateSlangInput({ slang, definition, example, region });
-    if (validationError) return flashAndRedirect(req, res, 'error', validationError, '/slangs/add');
+    if (validationError) return flashAndRedirect(req, res, "error", validationError, "/slangs/add");
 
     try {
         const newSlang = new Slang({
@@ -32,11 +31,11 @@ exports.postAddSlang = [isNotLoggedIn, async (req, res) => {
             byUser: req.session.username
         });
         await newSlang.save();
-        return flashAndRedirect(req, res, 'success', 'Jerga agregada exitosamente.', '/', true);
+        return flashAndRedirect(req, res, "success", "Jerga agregada exitosamente.", "/", true);
     } catch (error) {
-        return flashAndRedirect(req, res, 'error', 'Error al agregar la jerga. Inténtalo de nuevo.', '/slangs/add');
+        return flashAndRedirect(req, res, "error", "Error al agregar la jerga. Inténtalo de nuevo.", "/slangs/add");
     }
-}];
+};
 
 const handleVote = async (req, res, next, voteType) => {
     const userId = req.session.userID;
@@ -64,20 +63,21 @@ const handleVote = async (req, res, next, voteType) => {
         }
 
         await slang.save();
-        res.redirect(req.get('referer') || '/');
+        res.redirect(req.get("referer") || "/");
     } catch (error) {
         next(error);
     }
 };
 
-exports.upvoteSlang = [isNotLoggedIn, (req, res, next) => handleVote(req, res, next, "upvote")];
-exports.downvoteSlang = [isNotLoggedIn, (req, res, next) => handleVote(req, res, next, "downvote")];
+exports.upvoteSlang = (req, res, next) => handleVote(req, res, next, "upvote");
 
-exports.deleteSlang = [isNotLoggedIn, isAdmin, async (req, res) => {
+exports.downvoteSlang = (req, res, next) => handleVote(req, res, next, "downvote");
+
+exports.deleteSlang = async (req, res) => {
     try {
         await Slang.findByIdAndDelete(req.params.id);
-        flashAndRedirect(req, res, 'success', 'Jerga eliminada exitosamente.', '/');
+        flashAndRedirect(req, res, "success", "Jerga eliminada exitosamente.", "/");
     } catch (error) {
-        flashAndRedirect(req, res, 'error', 'Error al eliminar la jerga.', '/');
+        flashAndRedirect(req, res, "error", "Error al eliminar la jerga.", "/");
     }
-}];
+};
