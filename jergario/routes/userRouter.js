@@ -1,28 +1,32 @@
+
 const express = require("express");
 const userController = require("../controllers/userController");
+const { isLoggedIn, isNotLoggedIn, isAdmin } = require('../middleware/authHelpers');
 const router = express.Router();
 
-router.get("/register", userController.getRegister);
-router.get("/login", userController.getLogin);
-router.post("/register", userController.postRegister);
-router.post("/login", userController.postLogin);
 
-router.get("/profile", userController.getProfile);
-router.post("/logout", userController.postLogout);
-router.get("/edit", userController.getEditProfile);
-router.post("/edit", userController.postEditProfile);
-router.post("/delete",userController.deleteAccount)
-
+router.get("/register", isLoggedIn, userController.getRegister);
+router.get("/login", isLoggedIn, userController.getLogin);
+router.post("/register", isLoggedIn, userController.postRegister);
+router.post("/login", isLoggedIn, userController.postLogin);
 router.get("/verify/:token", userController.verifyEmail); 
 router.get('/resend-verification', userController.resendVerificationEmail);
 
 
-router.get("/admin", userController.getAdminPage);
-router.post("/admin/delete-user", userController.deleteUser);
+router.get("/profile", isNotLoggedIn, userController.getProfile);
+router.post("/logout", isNotLoggedIn, userController.postLogout);
+router.get("/edit", isNotLoggedIn, userController.getEditProfile);
+router.post("/edit", isNotLoggedIn, userController.postEditProfile);
+router.post("/delete", isNotLoggedIn, userController.deleteAccount);
 
-router.get("/forgot-password", userController.getForgotPassword);
-router.post("/forgot-password", userController.postForgotPassword);
-router.get("/reset-password/:token", userController.getResetPassword);
-router.post("/reset-password/:token", userController.postResetPassword);
+
+router.get("/admin", isNotLoggedIn, isAdmin, userController.getAdminPage);
+router.post("/admin/delete-user", isNotLoggedIn, isAdmin, userController.deleteUser);
+
+
+router.get("/forgot-password", isLoggedIn, userController.getForgotPassword);
+router.post("/forgot-password", isLoggedIn, userController.postForgotPassword);
+router.get("/reset-password/:token", isLoggedIn, userController.getResetPassword);
+router.post("/reset-password/:token", isLoggedIn, userController.postResetPassword);
 
 module.exports = router;
