@@ -70,6 +70,17 @@ const handleUserNotFound = (req, res) => {
     });
 };
 
+const removeUserVotes = async (userId) => {
+    const slangs = await Slang.find({ "voters.userId": userId });
+    for (let slang of slangs) {
+        const voteIndex = slang.voters.findIndex(voter => voter.userId === userId);
+        if (voteIndex !== -1) {
+            slang[slang.voters[voteIndex].voteType + "s"] -= 1;
+            slang.voters.splice(voteIndex, 1);
+            await slang.save();
+        }
+    }
+};
 
 
 module.exports = {
@@ -79,5 +90,6 @@ module.exports = {
     validateUniqueFields,
     handleUserNotFound,
     validateRegisterInput,
-    isAdmin
+    isAdmin,
+    removeUserVotes
 };

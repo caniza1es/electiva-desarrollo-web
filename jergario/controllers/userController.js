@@ -2,7 +2,7 @@ const User = require("../models/userModel");
 const jwt = require("jsonwebtoken");
 const Slang = require("../models/slangModel");
 const transporter = require("../config/emailConfig");
-const { flashAndRedirect, validateUniqueFields, handleUserNotFound, validateRegisterInput } = require("../middleware/authHelpers");
+const { flashAndRedirect, validateUniqueFields, handleUserNotFound, validateRegisterInput, removeUserVotes } = require("../middleware/authHelpers");
 
 const EMAIL_SECRET = 'epickey';
 
@@ -161,12 +161,14 @@ exports.getAdminPage = async (req, res) => {
 exports.deleteUser = async (req, res) => {
     const { userId } = req.body;
     try {
+        await removeUserVotes(userId);
         await User.findByIdAndDelete(userId);
-        return flashAndRedirect(req, res, "success", "Usuario eliminado", "/users/admin");
+        flashAndRedirect(req, res, "success", "Usuario eliminado", "/users/admin");
     } catch (error) {
-        return flashAndRedirect(req, res, "error", "Error al eliminar el usuario", "/users/admin");
+        flashAndRedirect(req, res, "error", "Error al eliminar usuario", "/users/admin");
     }
 };
+
 
 exports.getForgotPassword = (req, res) => res.status(200).render("./users/forgot-password");
 
@@ -248,6 +250,7 @@ exports.deleteAccount = async (req, res) => {
         const user = await User.findById(req.session.userID);
         if (!user) return handleUserNotFound(req, res);
 
+        await removeUserVotes(user._id);
         await User.findByIdAndDelete(user._id);
 
         req.session.destroy(err => {
