@@ -85,6 +85,9 @@ exports.postRegister = async (req, res) => {
         await newUser.save();
 
         const token = generateToken(newUser._id);
+        newUser.verificationToken = token;  
+        await newUser.save();
+    
         const verificationUrl = `${req.protocol}://${req.get("host")}/users/verify/${token}`;
         const emailHtml = `<p>Bienvenido, ${username}. Haz clic en el enlace para verificar tu email:</p><a href="${verificationUrl}">Verificar Email</a>`;
         await sendEmail(email, "Verificación de Email - Jergar.io", emailHtml);
@@ -100,9 +103,12 @@ exports.verifyEmail = async (req, res) => {
     try {
         const decoded = jwt.verify(token, EMAIL_SECRET);
         const user = await User.findById(decoded.id);
-        if (!user) return flashAndRedirect(req, res, "error", "Enlace de verificación inválido o expirado.", "/users/login");
+        if (!user || user.verificationToken !== token) {
+            return flashAndRedirect(req, res, "error", "Enlace de verificación inválido o expirado.", "/users/login");
+        }
 
         user.isVerified = true;
+        user.verificationToken = null;  
         await user.save();
 
         setSession(req, user);
@@ -181,6 +187,9 @@ exports.postForgotPassword = async (req, res) => {
         if (!user) return flashAndRedirect(req, res, "error", "No se encontró ninguna cuenta con ese email.", "/users/forgot-password");
 
         const token = generateToken(user._id);
+        user.resetPasswordToken = token;  
+        await user.save();
+    
         const resetUrl = `${req.protocol}://${req.get("host")}/users/reset-password/${token}`;
         const emailHtml = `<p>Hola, ${user.username}. Haz clic en el enlace para restablecer tu contraseña:</p><a href="${resetUrl}">Restablecer Contraseña</a>`;
         await sendEmail(email, "Restablecimiento de Contraseña - Jergar.io", emailHtml);
@@ -205,18 +214,27 @@ exports.getResetPassword = async (req, res) => {
     }
 };
 
+
 exports.postResetPassword = async (req, res) => {
     const { token } = req.params;
     const { newPassword, confirmNewPassword } = req.body;
-    if (!newPassword || !confirmNewPassword) return flashAndRedirect(req, res, "error", "Todos los campos son obligatorios.", `/users/reset-password/${token}`);
-    if (newPassword !== confirmNewPassword) return flashAndRedirect(req, res, "error", "Las contraseñas no coinciden.", `/users/reset-password/${token}`);
+
+    if (!newPassword || !confirmNewPassword) {
+        return flashAndRedirect(req, res, "error", "Todos los campos son obligatorios.", `/users/reset-password/${token}`);
+    }
+    if (newPassword !== confirmNewPassword) {
+        return flashAndRedirect(req, res, "error", "Las contraseñas no coinciden.", `/users/reset-password/${token}`);
+    }
 
     try {
         const decoded = jwt.verify(token, EMAIL_SECRET);
         const user = await User.findById(decoded.id);
-        if (!user) return flashAndRedirect(req, res, "error", "Enlace de restablecimiento inválido o expirado.", "/users/forgot-password");
+        if (!user || user.resetPasswordToken !== token) {
+            return flashAndRedirect(req, res, "error", "Enlace de restablecimiento inválido o expirado.", "/users/forgot-password");
+        }
 
         user.password = newPassword;
+        user.resetPasswordToken = null;  
         await user.save();
 
         return flashAndRedirect(req, res, "success", "Contraseña actualizada exitosamente. Ahora puedes iniciar sesión.", "/users/login", true);
@@ -234,6 +252,9 @@ exports.resendVerificationEmail = async (req, res) => {
         if (user.isVerified) return flashAndRedirect(req, res, "error", "La cuenta ya está verificada", "/users/login");
 
         const token = generateToken(user._id);
+        user.verificationToken = token;  
+        await user.save();
+    
         const verificationUrl = `${req.protocol}://${req.get("host")}/users/verify/${token}`;
         const emailHtml = `<p>Hola, ${user.username}. Haz clic en el enlace para verificar tu email:</p><a href="${verificationUrl}">Verificar Email</a>`;
         await sendEmail(user.email, "Reenvío de Verificación de Email - Jergar.io", emailHtml);

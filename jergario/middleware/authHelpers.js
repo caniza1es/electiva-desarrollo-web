@@ -3,6 +3,7 @@ const MIN_PASSWORD_LENGTH = 3;
 const MAX_PASSWORD_LENGTH = 16;
 const MAX_EMAIL_LENGTH = 100;
 const User = require("../models/userModel");
+const Slang = require("../models/slangModel")
 
 const validateRegisterInput = ({ username, email, password, confirmPassword }, requirePassword = true) => {
     if (!username || !email) return 'Todos los campos son obligatorios';
@@ -71,14 +72,24 @@ const handleUserNotFound = (req, res) => {
 };
 
 const removeUserVotes = async (userId) => {
-    const slangs = await Slang.find({ "voters.userId": userId });
-    for (let slang of slangs) {
-        const voteIndex = slang.voters.findIndex(voter => voter.userId === userId);
-        if (voteIndex !== -1) {
-            slang[slang.voters[voteIndex].voteType + "s"] -= 1;
-            slang.voters.splice(voteIndex, 1);
-            await slang.save();
-        }
+    try {
+        const slangs = await Slang.find({ "voters.userId": userId });
+        const updates = slangs.map(async (slang) => {
+            const voteIndex = slang.voters.findIndex(voter => voter.userId === userId);
+            if (voteIndex !== -1) {
+                const voteType = slang.voters[voteIndex].voteType;
+                if (voteType === "upvote" || voteType === "downvote") {
+                    slang[voteType + "s"] -= 1; 
+                }
+                slang.voters.splice(voteIndex, 1); 
+                return slang.save();
+            }
+        });
+
+        await Promise.all(updates); 
+    } catch (error) {
+        console.error("Error al eliminar los votos del usuario:", error.message);
+        throw new Error("Error al eliminar los votos del usuario.");
     }
 };
 
