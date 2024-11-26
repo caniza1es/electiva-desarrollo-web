@@ -1,7 +1,7 @@
 const session = require("express-session")
 const mongoStore = require("connect-mongo")
 
-const mongoUrl = "mongodb://localhost:27017/"
+const mongoUrl = "mongodb+srv://canizalesbeltran:aqKKHGilVlSq4EO7@jergariocluster.2bb9m.mongodb.net/?retryWrites=true&w=majority&appName=jergarioCluster"
 
 const sessionMiddleware = session({
     resave: false,
