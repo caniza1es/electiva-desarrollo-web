@@ -5,6 +5,7 @@ const connectDB = require("./config/db")
 const sessionMiddleware = require("./middleware/session")
 const userStatusMiddleware = require("./middleware/userStatus")
 const flashVariablesMiddleware = require("./middleware/flashVariables")
+const { updateSessionUser } = require('./middleware/updateSession');
 const errorHandler = require("./middleware/errorHandler")
 
 const indexRouter = require("./routes/indexRouter")
@@ -18,6 +19,7 @@ app.set("views","./views")
 app.set("view engine","ejs")
 
 app.use(sessionMiddleware)
+app.use(updateSessionUser)
 app.use(flash())
 app.use(userStatusMiddleware)
 app.use(flashVariablesMiddleware)

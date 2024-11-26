@@ -216,13 +216,41 @@ exports.getAdminPage = async (req, res) => {
 exports.deleteUser = async (req, res) => {
     const { userId } = req.body;
     try {
+        const userToDelete = await User.findById(userId);
+        if (!userToDelete) {
+            return flashAndRedirect(
+                req,
+                res,
+                "error",
+                "Usuario no encontrado",
+                "/users/admin"
+            );
+        }
+        if (userToDelete.role === 'admin') {
+            return flashAndRedirect(
+                req,
+                res,
+                "error",
+                "No puedes eliminar a otros administradores.",
+                "/users/admin"
+            );
+        }
         await removeUserVotes(userId);
         await User.findByIdAndDelete(userId);
+
         flashAndRedirect(req, res, "success", "Usuario eliminado", "/users/admin");
     } catch (error) {
-        flashAndRedirect(req, res, "error", "Error al eliminar usuario", "/users/admin");
+        flashAndRedirect(
+            req,
+            res,
+            "error",
+            "Error al eliminar usuario",
+            "/users/admin"
+        );
     }
 };
+
+
 
 
 exports.getForgotPassword = (req, res) => res.status(200).render("./users/forgot-password");

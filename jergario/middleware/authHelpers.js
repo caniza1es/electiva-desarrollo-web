@@ -115,6 +115,7 @@ const removeUserVotes = async (userId) => {
 };
 
 
+
 module.exports = {
     flashAndRedirect,
     isNotLoggedIn,
