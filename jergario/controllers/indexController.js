@@ -34,6 +34,32 @@ exports.getIndex = async (req, res, next) => {
 };
 
 
+exports.getHomepage = async (req, res, next) => {
+    try {
+      const totalJergas = await Slang.countDocuments();
+      if (totalJergas === 0) {
+        res.render("home", {
+          totalJergas,
+          jergaDelDia: null,
+        });
+        return;
+      }
+      const today = new Date();
+      const dayOfYear = Math.floor(
+        (today - new Date(today.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24
+      );
+  
+      const randomIndex = dayOfYear % totalJergas;
+      const jergaDelDia = await Slang.findOne().skip(randomIndex);
+  
+      res.render("home", {
+        totalJergas,
+        jergaDelDia,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
 exports.getError = (req, res, next) => {
     res.render("error");
 };

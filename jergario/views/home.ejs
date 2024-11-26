@@ -1,0 +1,45 @@
+<%- include('partials/header', { pageTitle: 'Bienvenido a Jergar.io' }) %>
+
+<div class="d-flex flex-column min-vh-100">
+  <main class="container my-5 flex-grow-1">
+    <div class="card shadow-lg p-4 mx-auto" style="max-width: 900px;">
+      <div class="card-body">
+        <div class="text-center mb-5">
+          <h2 class="mb-4" style="font-size: 5rem;">🏠</h2>
+          <h3 class="text-center text-muted"><em>Bienvenido a Jergar.io</em></h3>
+          <p class="lead text-muted"><em>Tu diccionario colaborativo de jerga hispanohablante. ¡Aprende y comparte la informalidad de diferentes regiones!</em></p>
+        </div>
+
+        <div class="card mb-5 shadow-sm">
+          <div class="card-body">
+            <h3 class="card-title mb-3">Jerga del Día</h3>
+            <% if (jergaDelDia) { %>
+              <h4 class="text-primary">
+                <a href="/dictionary/?searchText=<%= encodeURIComponent(jergaDelDia.slang) %>" class="text-primary text-decoration-none">
+                  <%= jergaDelDia.slang %>
+                </a>
+              </h4>
+              <p class="text-muted mb-2"><%= jergaDelDia.definition %></p>
+              <p class="fst-italic text-secondary mb-2">"<%= jergaDelDia.example %>"</p>
+              <p class="text-muted">Por: <%= jergaDelDia.byUser %></p>
+            <% } else { %>
+              <p>No hay jerga del día disponible.</p>
+            <% } %>
+          </div>
+        </div>
+
+ 
+        <div class="text-center">
+          <h4>¡Actualmente tenemos <strong><%= totalJergas %></strong> jergas en nuestra base de datos!</h4>
+        </div>
+
+
+        <div class="text-center mt-5">
+          <a href="/slangs/add" class="btn btn-primary btn-lg">¡Agrega tu propia jerga!</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <%- include('partials/footer') %>
+</div>

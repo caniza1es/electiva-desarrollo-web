@@ -5,9 +5,9 @@
         <div class="card shadow-lg p-4 mx-auto" style="max-width: 900px;">
             <div class="card-body">
                 <h2 class="text-center mb-4" style="font-size: 5rem;">📖</h2> 
-                <p class="text-center text-muted"><em>Para que no te hablen raro</em></p>
+                <h3 class="text-center text-muted"><em>Diccionario</em></h3>
                 <div class="card my-4 p-3 shadow-sm">
-                    <form action="/" method="GET" class="d-flex flex-column flex-md-row">
+                    <form action="/dictionary/" method="GET" class="d-flex flex-column flex-md-row">
                         <div class="input-group flex-grow-1">
                             <input type="text" class="form-control" id="searchText" name="searchText" placeholder="💬" value="<%= searchText || '' %>">
                             <input type="text" class="form-control" id="author" name="author" placeholder="👤" value="<%= author || '' %>">
@@ -55,10 +55,10 @@
                                         <p class="text-muted mb-2"><%= slang.definition %></p>
                                         <p class="fst-italic text-secondary mb-2">"<%= slang.example %>"</p>
                                         <div class="d-flex justify-content-between">
-                                            <a href="?author=<%= slang.byUser %>" class="text-decoration-none small text-primary"><%= slang.byUser %></a>
+                                            <a href="/dictionary/?author=<%= slang.byUser %>" class="text-decoration-none small text-primary"><%= slang.byUser %></a>
                                         </div>
                                         <div class="d-flex justify-content-between align-items-center mt-2">
-                                            <a href="?region=<%= slang.region %>" class="text-decoration-none small text-primary me-3">
+                                            <a href="/dictionary/?region=<%= slang.region %>" class="text-decoration-none small text-primary me-3">
                                                 <%= regiones[slang.region] || '🌎' %> 
                                             </a>
                                             <div class="d-flex align-items-center">
@@ -86,15 +86,15 @@
 
                 <div class="pagination d-flex justify-content-center mt-4">
                     <% if (currentPage > 1) { %>
-                        <a href="?searchText=<%= searchText %>&author=<%= author %>&region=<%= region %>&page=<%= currentPage - 1 %>" class="btn btn-outline-secondary me-2">Anterior</a>
+                        <a href="/dictionary/?searchText=<%= searchText %>&author=<%= author %>&region=<%= region %>&page=<%= currentPage - 1 %>" class="btn btn-outline-secondary me-2">Anterior</a>
                     <% } %>
                     <% for (let i = 1; i <= totalPages; i++) { %>
-                        <a href="?searchText=<%= searchText %>&author=<%= author %>&region=<%= region %>&page=<%= i %>" class="btn btn-outline-secondary <%= i === currentPage ? 'active' : '' %>">
+                        <a href="/dictionary/?searchText=<%= searchText %>&author=<%= author %>&region=<%= region %>&page=<%= i %>" class="btn btn-outline-secondary <%= i === currentPage ? 'active' : '' %>">
                             <%= i %>
                         </a>
                     <% } %>
                     <% if (currentPage < totalPages) { %>
-                        <a href="?searchText=<%= searchText %>&author=<%= author %>&region=<%= region %>&page=<%= currentPage + 1 %>" class="btn btn-outline-secondary ms-2">Siguiente</a>
+                        <a href="/dictionary/?searchText=<%= searchText %>&author=<%= author %>&region=<%= region %>&page=<%= currentPage + 1 %>" class="btn btn-outline-secondary ms-2">Siguiente</a>
                     <% } %>
                 </div>
             </div>

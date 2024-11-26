@@ -31,7 +31,7 @@ exports.postAddSlang = async (req, res) => {
             byUser: req.session.username
         });
         await newSlang.save();
-        return flashAndRedirect(req, res, "success", "Jerga agregada exitosamente.", "/", true);
+        return flashAndRedirect(req, res, "success", "Jerga agregada exitosamente.", "/dictionary", true);
     } catch (error) {
         return flashAndRedirect(req, res, "error", "Error al agregar la jerga. Inténtalo de nuevo.", "/slangs/add");
     }
@@ -63,7 +63,7 @@ const handleVote = async (req, res, next, voteType) => {
         }
 
         await slang.save();
-        res.redirect(req.get("referer") || "/");
+        res.redirect(req.get("referer") || "/dictionary");
     } catch (error) {
         next(error);
     }
@@ -76,8 +76,8 @@ exports.downvoteSlang = (req, res, next) => handleVote(req, res, next, "downvote
 exports.deleteSlang = async (req, res) => {
     try {
         await Slang.findByIdAndDelete(req.params.id);
-        flashAndRedirect(req, res, "success", "Jerga eliminada exitosamente.", "/");
+        flashAndRedirect(req, res, "success", "Jerga eliminada exitosamente.", "/dictionary");
     } catch (error) {
-        flashAndRedirect(req, res, "error", "Error al eliminar la jerga.", "/");
+        flashAndRedirect(req, res, "error", "Error al eliminar la jerga.", "/dictionary");
     }
 };

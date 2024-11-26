@@ -41,13 +41,13 @@ exports.getProfile = async (req, res) => {
             isAdmin: req.session.userRole === "admin"
         });
     } catch (error) {
-        return flashAndRedirect(req, res, "error", "Ocurrió un error al cargar el perfil", "/");
+        return flashAndRedirect(req, res, "error", "Ocurrió un error al cargar el perfil", "/dictionary");
     }
 };
 
 exports.postLogout = (req, res, next) => {
     req.session.destroy(err => {
-        if (err) return next(flashAndRedirect(req, res, "error", "Error al cerrar sesión, inténtalo de nuevo", "/"));
+        if (err) return next(flashAndRedirect(req, res, "error", "Error al cerrar sesión, inténtalo de nuevo", "/dictionary"));
         res.redirect("/users/login");
     });
 };
@@ -88,7 +88,7 @@ exports.postLogin = async (req, res) => {
         }
 
         setSession(req, user);
-        return flashAndRedirect(req, res, "success", "Inicio de sesión exitoso", "/", true);
+        return flashAndRedirect(req, res, "success", "Inicio de sesión exitoso", "/dictionary", true);
     } catch (error) {
         return flashAndRedirect(req, res, "error", "Ocurrió un error, inténtalo de nuevo", "/users/login");
     }
@@ -156,7 +156,7 @@ exports.getEditProfile = async (req, res) => {
 
         res.status(200).render("./users/edit", { username: user.username, email: user.email });
     } catch (error) {
-        return flashAndRedirect(req, res, "error", "Ocurrió un error al cargar la página de edición de perfil", "/");
+        return flashAndRedirect(req, res, "error", "Ocurrió un error al cargar la página de edición de perfil", "/dictionary");
     }
 };
 
@@ -209,7 +209,7 @@ exports.getAdminPage = async (req, res) => {
         const users = await User.find({ $or: [{ username: { $regex: searchQuery, $options: "i" } }, { email: { $regex: searchQuery, $options: "i" } }] });
         res.status(200).render("./users/admin", { users, searchQuery });
     } catch (error) {
-        return flashAndRedirect(req, res, "error", "Error al cargar la página de administración", "/");
+        return flashAndRedirect(req, res, "error", "Error al cargar la página de administración", "/dictionary");
     }
 };
 
