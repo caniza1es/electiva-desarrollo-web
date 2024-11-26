@@ -2,39 +2,51 @@
 
 <div class="d-flex flex-column min-vh-100">
     <main class="container my-5 flex-grow-1">
-        <div class="card shadow-lg p-4 mx-auto" style="max-width: 900px;">
+        <div class="card shadow-lg p-4 mx-auto" style="max-width: 900px; width: 100%;">
             <div class="card-body">
-                <h2 class="text-center mb-4" style="font-size: 5rem;">👤</h2>
+                <h2 class="text-center mb-4 display-4">👤</h2>
                 <h3 class="text-center text-muted"><em>Administración de Usuarios</em></h3>
 
-                <form action="/users/admin" method="GET" class="d-flex mb-4">
-                    <input type="text" name="search" class="form-control" placeholder="Buscar usuario o email..." value="<%= searchQuery || '' %>">
-                    <button type="submit" class="btn btn-primary ms-2">Buscar</button>
+                <form action="/users/admin" method="GET" class="row g-2 align-items-center mb-4">
+                    <div class="col-12 col-md-9">
+                        <input type="text" name="search" class="form-control" placeholder="Buscar usuario o email..." value="<%= searchQuery || '' %>">
+                    </div>
+                    <div class="col-12 col-md-3 d-grid">
+                        <button type="submit" class="btn btn-primary">Buscar</button>
+                    </div>
                 </form>
 
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>Nombre de Usuario</th>
-                            <th>Email</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <% users.forEach(user => { %>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
                             <tr>
-                                <td><%= user.username %></td>
-                                <td><%= user.email %></td>
-                                <td>
-                                    <form action="/users/admin/delete-user" method="POST" class="delete-form d-inline">
-                                        <input type="hidden" name="userId" value="<%= user._id %>">
-                                        <button type="button" class="btn btn-outline-danger btn-sm delete-button">Eliminar</button>
-                                    </form>
-                                </td>
+                                <th>Usuario</th>
+                                <th>Email</th>
+                                <th>Acciones</th>
                             </tr>
-                        <% }) %>
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            <% if (users.length === 0) { %>
+                                <tr>
+                                    <td colspan="3" class="text-center">No se encontraron usuarios.</td>
+                                </tr>
+                            <% } else { %>
+                                <% users.forEach(user => { %>
+                                    <tr>
+                                        <td><%= user.username %></td>
+                                        <td><%= user.email %></td>
+                                        <td>
+                                            <form action="/users/admin/delete-user" method="POST" class="delete-form d-inline">
+                                                <input type="hidden" name="userId" value="<%= user._id %>">
+                                                <button type="button" class="btn btn-outline-danger btn-sm delete-button">Eliminar</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </main>
@@ -42,6 +54,7 @@
     <%- include('../partials/footer') %>
 </div>
 
+<!-- SweetAlert2 JS -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {

@@ -1,7 +1,7 @@
 const Slang = require("../models/slangModel");
 const { flashAndRedirect } = require("../middleware/authHelpers");
 
-const MAX_SLANG_LENGTH = 25;
+const MAX_SLANG_LENGTH = 50;
 const MAX_DEFINITION_LENGTH = 250;
 const MAX_EXAMPLE_LENGTH = 150;
 
