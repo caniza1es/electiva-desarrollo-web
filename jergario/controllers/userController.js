@@ -2,7 +2,10 @@ const User = require("../models/userModel");
 const jwt = require("jsonwebtoken");
 const Slang = require("../models/slangModel");
 const transporter = require("../config/emailConfig");
-const { flashAndRedirect, validateUniqueFields, handleUserNotFound, validateRegisterInput, removeUserVotes } = require("../middleware/authHelpers");
+const { flashAndRedirect, validateUniqueFields, handleUserNotFound, validateRegisterInput, removeUserVotes, validateProfileEditInput } = require("../middleware/authHelpers");
+const bcrypt = require("bcrypt");
+const SALT_ROUNDS = 10;
+
 
 const EMAIL_SECRET = 'epickey';
 
@@ -51,12 +54,31 @@ exports.postLogout = (req, res, next) => {
 
 exports.postLogin = async (req, res) => {
     const { username, password } = req.body;
-    if (!username || !password) return flashAndRedirect(req, res, "error", "Todos los campos son obligatorios", "/users/login");
-
+    if (!username || !password)
+        return flashAndRedirect(req, res, "error", "Todos los campos son obligatorios", "/users/login");
     try {
-        const user = await User.findOne({ username });
-        if (!user || user.password !== password) {
-            return flashAndRedirect(req, res, "error", "Nombre de usuario o contraseña incorrectos", "/users/login");
+        const user = await User.findOne({
+            $or: [{ username: username }, { email: username }],
+        });
+
+        if (!user) {
+            return flashAndRedirect(
+                req,
+                res,
+                "error",
+                "Nombre de usuario/Email o contraseña incorrectos",
+                "/users/login"
+            );
+        }
+        const passwordMatch = await bcrypt.compare(password, user.password);
+        if (!passwordMatch) {
+            return flashAndRedirect(
+                req,
+                res,
+                "error",
+                "Nombre de usuario/Email o contraseña incorrectos",
+                "/users/login"
+            );
         }
 
         if (!user.isVerified) {
@@ -67,10 +89,11 @@ exports.postLogin = async (req, res) => {
 
         setSession(req, user);
         return flashAndRedirect(req, res, "success", "Inicio de sesión exitoso", "/", true);
-    } catch {
+    } catch (error) {
         return flashAndRedirect(req, res, "error", "Ocurrió un error, inténtalo de nuevo", "/users/login");
     }
 };
+
 
 exports.postRegister = async (req, res) => {
     const { username, email, password, confirmPassword } = req.body;
@@ -81,7 +104,15 @@ exports.postRegister = async (req, res) => {
         const uniqueFieldError = await validateUniqueFields(username, email);
         if (uniqueFieldError) return flashAndRedirect(req, res, "error", uniqueFieldError, "/users/register");
 
-        const newUser = new User({ username, email, password, isVerified: false });
+        const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
+
+        const newUser = new User({
+            username,
+            email,
+            password: hashedPassword,
+            isVerified: false,
+        });
+        
         await newUser.save();
 
         const token = generateToken(newUser._id);
@@ -129,22 +160,38 @@ exports.getEditProfile = async (req, res) => {
     }
 };
 
+
+
+
+
 exports.postEditProfile = async (req, res) => {
     const { username, currentPassword, newPassword, confirmNewPassword } = req.body;
     try {
         const user = await User.findById(req.session.userID);
         if (!user) return handleUserNotFound(req, res);
 
-        if (user.password !== currentPassword) return flashAndRedirect(req, res, "error", "La contraseña actual es incorrecta", "/users/edit");
+       
+        const passwordMatch = await bcrypt.compare(currentPassword, user.password);
+        if (!passwordMatch) 
+            return flashAndRedirect(req, res, "error", "La contraseña actual es incorrecta", "/users/edit");
 
-        const validationError = validateRegisterInput({ username, password: newPassword, confirmPassword: confirmNewPassword }, !!newPassword);
-        if (validationError) return flashAndRedirect(req, res, "error", validationError, "/users/edit");
+       
+        const validationError = validateProfileEditInput({ username, newPassword, confirmNewPassword });
+        if (validationError) 
+            return flashAndRedirect(req, res, "error", validationError, "/users/edit");
 
-        const uniqueFieldError = await validateUniqueFields(username, null, user._id);
-        if (uniqueFieldError) return flashAndRedirect(req, res, "error", uniqueFieldError, "/users/edit");
+        if (username !== user.username) {
+            const uniqueFieldError = await validateUniqueFields(username, null, user._id);
+            if (uniqueFieldError) 
+                return flashAndRedirect(req, res, "error", uniqueFieldError, "/users/edit");
+            user.username = username;
+        }
 
-        user.username = username || user.username;
-        if (newPassword) user.password = newPassword;
+        if (newPassword) {
+
+            const hashedNewPassword = await bcrypt.hash(newPassword, SALT_ROUNDS);
+            user.password = hashedNewPassword;
+        }
 
         await user.save();
         return flashAndRedirect(req, res, "success", "Perfil actualizado exitosamente", "/users/profile");
@@ -153,6 +200,8 @@ exports.postEditProfile = async (req, res) => {
         return flashAndRedirect(req, res, "error", "Error al actualizar el perfil", "/users/edit");
     }
 };
+
+
 
 exports.getAdminPage = async (req, res) => {
     const searchQuery = req.query.search || "";
@@ -232,8 +281,8 @@ exports.postResetPassword = async (req, res) => {
         if (!user || user.resetPasswordToken !== token) {
             return flashAndRedirect(req, res, "error", "Enlace de restablecimiento inválido o expirado.", "/users/forgot-password");
         }
-
-        user.password = newPassword;
+        const hashedPassword = await bcrypt.hash(newPassword, SALT_ROUNDS);
+        user.password = hashedPassword;
         user.resetPasswordToken = null;  
         await user.save();
 
@@ -243,6 +292,7 @@ exports.postResetPassword = async (req, res) => {
         return flashAndRedirect(req, res, "error", "Error al restablecer la contraseña.", "/users/forgot-password");
     }
 };
+
 
 exports.resendVerificationEmail = async (req, res) => {
     const { userId } = req.query;

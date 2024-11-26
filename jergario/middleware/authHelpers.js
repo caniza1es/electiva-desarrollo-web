@@ -20,6 +20,27 @@ const validateRegisterInput = ({ username, email, password, confirmPassword }, r
     return null;
 };
 
+
+function validateProfileEditInput(data) {
+    const { username, newPassword, confirmNewPassword } = data;
+
+    if (!username) {
+        return "El nombre de usuario es obligatorio.";
+    }
+
+    if (newPassword || confirmNewPassword) {
+        if (!newPassword || !confirmNewPassword) {
+            return "Debes proporcionar y confirmar la nueva contraseña.";
+        }
+        if (newPassword !== confirmNewPassword) {
+            return "Las contraseñas no coinciden.";
+        }
+      
+    }
+
+    return null; 
+}
+
 const flashAndRedirect = (req, res, type, message, redirectPath, sweetalert = false) => {
     req.flash('useSweetAlert', sweetalert);
     req.flash(type, message);
@@ -102,5 +123,6 @@ module.exports = {
     handleUserNotFound,
     validateRegisterInput,
     isAdmin,
-    removeUserVotes
+    removeUserVotes,
+    validateProfileEditInput
 };
